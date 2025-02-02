@@ -1,4 +1,4 @@
-## Terminologia en Search Problems
+# Terminologia en Search Problems
 
 1. Agente: Entidad con la capacidad de percibir las condiciones de su entorno y actuar sobre el en consecuencia. Si ponemos como ejemplo el problema de encontrar la mejor ruta para llegar a un destino, nuestro agente seria una representacion de un conductor de un vehiculo.
 
@@ -53,6 +53,8 @@ Es de vital importancia tener una referencia al nodo padre para saber cual fue e
 
 11. Frontier: Consiste en una estructura de datos que representa los nodos que quedan por explorar. Se sigue un enfoque donde nodos recientemente descubiertos son introducidos en el frontier, analizados por el goal test, eliminados del frontier y finalmente expandidos (se agregan los nodos conectados al frontier)
 
+# Uninformed Search Algorithms
+
 ## Depth-First Seach Algorithm
 
 - En primer lugar nuestro algoritmo de busqueda comenzara con un frontier que solamente incluira el initial state.
@@ -95,4 +97,81 @@ En este algoritmo recursivo el frontier se comporta como un stack (last-in first
 
 ## Breadth-First Seach Algorithm
 
-Este algoritmo de busqueda es identico al Depth-First Seach aunque con una pequeña diferencia, en este caso el frontier no se comporta como un stack (last-in first-out) sino como una queue (first-in first-out). Ademas, no busca profundizar por completo cada una de las ramas, sino conocer todos los nodos disponibles desde cada nivel del arbol.
+Este algoritmo de busqueda es identico al Depth-First Seach aunque con una pequeña diferencia, en este caso el frontier no se comporta como un stack (last-in first-out) sino como una queue (first-in first-out). De esta manera no busca profundizar por completo cada una de las ramas, sino conocer primero todos los nodos mas triviales, es decir, aquellos disponibles desde cada nivel del arbol (shallow nodes).
+
+# Informed search algorithms
+
+A diferencia de los algoritmos de busqueda como DFS o BFS los algoritmos informados analizan aspectos del estado y del agente para determinar adecuadamente que acciones ejecutar en un momento determinado. Ahora el criterio de exploracion de nodos no se basa en el orden en el que entraron en el frontier (stack or queue frontier data structures), si no en una probabilidad que calcula una funcion heuristica
+
+## Greedy Best-First Search
+
+Este algoritmo en un claro ejemplo de busqueda informada.
+
+Siguiendo con el problema de resolver el camino en un laberinto, este algoritmo se basa en la premisa (no siempre cierta, aunque si por lo general), de que ante una bifurcacion el camino mas adecuado (y por lo tanto, cuyo nodo debe explorar primero), es aquel con menos distancia hasta el goal. Esto es lo que se conoce como una funcion heuristica que calcula la Manhattan distance (distancia hasta el objetivo en X + distancia hasta el objetivo en Y)
+
+El termino funcion heuristica por lo tanto se refiere al mecanismo a traves del cual nuestro agente decide tomar o no un determinado camino en funcion de la informacion que le consta sobre su entorno.
+
+```math
+h(n)
+```
+
+![manhattan-distance-heuristic-function-in-informed-search-algorithms](./imgs/manhattan-distance-heuristic-function-in-informed-search-algorithms.png)
+
+La funcion heuristica para este algoritmo no es la mas optima puesto que se toma importantes decisiones de exploracion de nodos sin considerar toda la informacion presente en el tablero y estas decisiones en ocasiones son demasiado deterministas (seria como conducir un coche sin gafas, podemos ver, pero solamente hasta cierta distancia)
+
+## A\* Search
+
+De nuevo, se trata de una algoritmo de busqueda informada aunque esta vez suma a la ecuacion un nuevo factor, el numero de saltos entre nodos transcurridos, con el objetivo de tener "mas vision" sobre la totalidad del estado.
+
+```math
+g(n) + h(n)
+```
+
+```text
+g(n) = el numero de saltos entre nodos
+h(n) = estimazion del costo hasta el objetivo
+```
+
+A\* es optimo siempre que tenga una funcion heuristica, una funcion heuristica optima es aquella que:
+
+- No sobreestima excesivamente el costo de un nodo (que en ocasiones podria ser la solucion mas adecuada, aunque en un principio no lo parezca)
+
+- Consistencia en el costo $\textit{(c)}$ al desplazarse de nodo a nodo, donde $\textit{h(n) <= h(n') + c}$
+
+## Adversarial Search
+
+Hasta el momento los algoritmos de busqueda han estado orientados a un solo agente. No obstante tambien existen algoritmos de busqueda con multiples agentes, y estos pueden competir dentro de su entorno con el fin de conseguir un objetivo en particular. (de ahora en adelante pondremos como ejemplo juego tic tac toe donde existen dos agentes con interes opuestos)
+
+Necesitamos un mecanismo para hacer entender a la maquina los conceptos de "ganador" y "perdedor". Podemos codificar esos conceptos asignando un valor numerico a cada posible estado que un tablero de tres en raya puede tener y este valor numerico debe oscilar para tres posibles estados:
+
+- No hay ganador -- valor 0
+
+- Gana X -- valor 1
+
+- Gana O -- valor -1
+
+![encoding-tictactoe-states](./imgs/encoding-tictactoe-states.png)
+
+De acuerdo para codificar un juego tic-tac-toe con una ingeligencia que utilice un algoritmo de busqueda minimax, es decir, donde un agente luche por obtener el mejor resultado y el otro busque minimizar los resultados del otro, tendremos que seguir un enfoque que incluya las siguientes utilidades:
+
+- S0: Initial state
+
+- PLAYER(s): Retorna el jugador con el siguiente turno
+
+- ACTIONS(s): Retorna las acciones legales (movimientos en el tablero) en el estado s.
+
+- RESULT(s, a): Actua como el transition model y returna el estado s tras la accion a.
+
+- TERMINAL(s): Verifica si el estado s es el final del juego
+
+- UTILITY(s): Tras haber determinado si el juego ha finalizado, retorna el valor numerico al del jugador ganador correspondiente al estado s.
+
+En el siguiente diagrama podemos observar graficamente como funciona minimax en un tablero de tic-tac-toe.
+
+![minimax-tictactoe-diagram](./imgs/minimax-tictactoe-diagram.png)
+
+Minimax impulsa al jugador MIN a escoger ramas con el valor mas bajo (mas favorables a que no gane x), mientras el el jugador MAX busca las ramas con mayor valor.
+
+En el caso de tic-tac-toe solamente tenemos tres posibles valores para para los siguientes nodos (-1, 0 y 1), pero este algoritmo es extrapolable a entornos donde cada proximo nodo que elijamos pueda tener un mas amplio abanico de posibilidades (en donde igualmente, y en funcion del turno actual, el agente se decantara por la opcion que le convenga mas)
+
+![minimax-generic-election-diagram](./imgs/minimax-generic-election-diagram.png)
