@@ -20,7 +20,7 @@ ACTIONS(s)
 
 ![sliding-tiles-env-possible-actions-example](./imgs/sliding-tiles-env-possible-actions-example.PNG)
 
-5. Transition mode: De alguna manera nuestro programa de inteligencia artificial necesitara algun tipo codificacion del estado y de las acciones (por lo general con un formato numerico), por ende tambien para los estados resultantes tras ejecutar las posibles acciones sobre los estados. Un transition model por lo tanto, describe como es alterado un entorno antes una determinada accion.
+5. Transition model: De alguna manera nuestro programa de inteligencia artificial necesitara algun tipo codificacion del estado y de las acciones (por lo general con un formato numerico), por ende tambien para los estados resultantes tras ejecutar las posibles acciones sobre los estados. Un transition model por lo tanto, describe como es alterado un entorno antes una determinada accion.
 
 ```math
 RESULT(s, a)
@@ -53,18 +53,46 @@ Es de vital importancia tener una referencia al nodo padre para saber cual fue e
 
 11. Frontier: Consiste en una estructura de datos que representa los nodos que quedan por explorar. Se sigue un enfoque donde nodos recientemente descubiertos son introducidos en el frontier, analizados por el goal test, eliminados del frontier y finalmente expandidos (se agregan los nodos conectados al frontier)
 
-### Aproach
+## Depth-First Seach Algorithm
 
-En primer lugar nuestro algoritmo de busqueda comenzara con un frontier que solamente incluira el initial state.
+- En primer lugar nuestro algoritmo de busqueda comenzara con un frontier que solamente incluira el initial state.
 
-Repetiremos los siguientes pasos:
+Repetiremos:
 
-1. Verificamos si el frontier esta vacio, en cuyo caso no habra nuevos nodos que explorar y por lo tanto no habra una solucion al problema.
+- Verificaremos si el frontier esta vacio, en cuyo caso no habra nodos por explorar y por lo tanto no habra solucion
 
-2. Eliminamos el nodo actual del frontier
+- Eliminamos el nodo actual del frontier
 
-3. Comprobaremos que el nodo pasa el goal test
+- Comprobaremos que el nodo pasa el goal test
 
-4. Expandimos el nodo, es decir, añadimos los nodos conectados al nodo actual al frontier
+- Expandimos el nodo, es decir, añadimos los nodos conectados al nodo actual al frontier
 
 ![searching-algorithm-aproach-diagram](./imgs/searching-algorithm-aproach-diagram.PNG)
+
+Uno de los principales problemas que tiene este enfoque lo podemos encontrar si admitimos la posibilidad de un nodo de volver a su estado anterior (por ejemplo el problema del sliding tiles puzzle, donde podemos regresar las piezas back and forth). Formaremos un bucle infinito donde los nodos ya explorados volveran a ser continuamente analizados.
+
+Para solucionar este problema debemos crear un mecanismo que nos ayude a saber que nodos hemos explorado.
+
+Nuestro nuevo enfoque mejorado se veria de la siguiente manera:
+
+- Inicializamos el frontier con el initial state
+
+- Creamos una estructura de datos inicialmente vacia que contendra el conjunto de estados explorados.
+
+Repetiremos:
+
+- Verificaremos si el frontier esta vacio, en cuyo caso no habra nodos por explorar y por lo tanto no habra solucion
+
+- Eliminaremos el nodo del frontier
+
+- Comprobaremos el el nodo pasa el goal test
+
+- Agregaremos el nodo a al conjunto de nodos explorados
+
+- Expandiremos el nodo, es decir, añadiremos los nodos conectados al frontier si estos no existen en el frontier ni el la estructura de nodos ya explorados
+
+En este algoritmo recursivo el frontier se comporta como un stack (last-in first-out) y permite analizar todas las ramas del state space en su maxima profundidaz. Tras llegar a la maxima profundidaz de una rama, el frontier comienza a analizar otra rama diferente comenzando desde ot(este concepto es conocido como Depth-First Search)
+
+## Breadth-First Seach Algorithm
+
+Este algoritmo de busqueda es identico al Depth-First Seach aunque con una pequeña diferencia, en este caso el frontier no se comporta como un stack (last-in first-out) sino como una queue (first-in first-out). Ademas, no busca profundizar por completo cada una de las ramas, sino conocer todos los nodos disponibles desde cada nivel del arbol.
