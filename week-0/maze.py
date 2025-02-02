@@ -16,6 +16,12 @@ class Vec2:
 
     def get_tuple(self):
         return (self.x, self.y)
+    
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+    
+    def __hash__(self):
+        return hash(self.get_tuple())
 
     def __str__(self):
         return f"""
@@ -38,7 +44,7 @@ class Node(NodeBase):
         return f"""
 {"-" * 10}
 state\t{self.state}
-parent\t{self.parent}
+parent\t{self.parent.state}
 action\t{self.action}
 {"-" * 10}\n"""
 
@@ -72,7 +78,7 @@ class StackFrontier:
         return len(self.frontier) == 0
 
     def contains_state(self, state: Vec2):
-        return any(node.state.get_tuple == state.get_tuple() for node in self.frontier)
+        return any(node.state == state for node in self.frontier)
 
 
 class QueueFrontier(StackFrontier):
@@ -133,22 +139,18 @@ class Maze:
         if any(line for line in lines if len(line) != len(lines[0])):
             raise Exception("maze lines must have exactly the same width")
 
-    def print(self, node: Node):
-        prev_states: list[Vec2] = []
-        while node.parent != None:
-            prev_states.append(node.state)
-            node = node.parent
-
+    def print(self):
         for i in range(self.height):
             for j in range(self.width):
+                pos = Vec2(j, i)
                 slot = self.walls[i][j]
                 if slot:
                     print("#", end="")
-                elif (j, i) == self.start.get_tuple():
+                elif pos == self.start:
                     print("A", end="")
-                elif (j, i) == self.goal.get_tuple():
+                elif pos == self.goal:
                     print("B", end="")
-                elif any(s.get_tuple() == (j, i) for s in prev_states):
+                elif any(pos == s for s in self.explored):
                     print("*", end="")
                 else:
                     print(" ", end="")
@@ -156,7 +158,7 @@ class Maze:
 
     def neighbors(self, state: Vec2):
         col, row = state.get_tuple()
-        action_candidates = (
+        transition_model = (
             (Actions.up, Vec2(col - 1, row)),
             (Actions.down, Vec2(col + 1, row)),
             (Actions.left, Vec2(col, row - 1)),
@@ -164,7 +166,7 @@ class Maze:
         )
 
         result: list[NodeBase] = []
-        for action, state in action_candidates:
+        for action, state in transition_model:
             col, row = state.get_tuple()
             if (
                 0 <= row < self.height
@@ -182,7 +184,7 @@ class Maze:
         frontier = self.frontier_class()
         frontier.add(start)
 
-        self.explored = set()
+        self.explored: set[Vec2] = set()
         num_explored = 0
 
         while True:
@@ -192,7 +194,7 @@ class Maze:
             node = frontier.remove()
             num_explored += 1
 
-            if node.state.get_tuple() == self.goal.get_tuple():
+            if node.state == self.goal:
                 actions = []
                 cells = []
                 solution_node = node
@@ -209,12 +211,12 @@ class Maze:
                 )
                 return
 
-            self.explored.add(node.state.get_tuple())
+            self.explored.add(node.state)
             neighbor_nodes = self.neighbors(node.state)
             for n in neighbor_nodes:
                 if (
                     not frontier.contains_state(n.state)
-                    and n.state.get_tuple() not in self.explored
+                    and n.state not in self.explored
                 ):
                     frontier.add(Node(state=n.state, parent=node, action=n.action))
 
@@ -226,7 +228,7 @@ def main():
     maze = Maze(argv[1], QueueFrontier)
     maze.solve()
 
-    maze.print(maze.solution.node)
+    maze.print()
     print(maze.solution.num_explored)
 
     pass
