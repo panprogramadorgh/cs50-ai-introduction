@@ -194,6 +194,26 @@ Dado el estado s:
 
 ## Optimizations
 
+### Alpha-Beta Pruning
+
 Existen ciertas optimizaciones que podemos hacer a minimax. Para explicarlo nos pondremos desde la perspectiva de MAX, donde MIN es nuestro enemigo. Suponiendo que nuestro contrincante este jugando de la forma mas optima posible, es decir, como jugador MIN, absolutamente siempre elije la opcion mas pequeña entre $\textit{MAX-VALUE(RESULT(s, a))}$, nosotros como jugador MAX, y que por lo tanto tenemos que elegir el camino con el nodo de mas valor de entre $\textit{MIN-VALUE(RESULT(s, a))}$, podemos descartar caminos de nodos por completo antes de terminar de analizarlos, si toca que uno de los valores entre los que tiene que elejir MIN es inferior al valor resultante de alguno de los caminos de nodos que analiza MAX.
 
 ![alpha-beta-pruning-with-minimax-diagam](./imgs/alpha-beta-pruning-with-minimax-diagram.PNG)
+
+### Depth-Limited Minimax
+
+Esta optimizacion en el algoritmo minimax consiste en capar el numero maximo de posibilidades que cada agente puede calcular sobre un estado con el objetivo de no considerar la infinidad de opciones y reducir costos computacionales
+
+Al asignar una maxima profundidaz de analisis de las posibilidades del estado, es posible que el problema a resolver se quede a medias y no sea finalizado. Para resolver este nuevo problema, este nuevo algoritmo implementa una `evaluation function` encargada de estimar el utility del estado, en otras palabras, estima que tan cerca se encuenta el estado de la solucion.
+
+Poniendo como ejemplo el problema de ganar una partia de ajedrez, la funcion de evaluacion podria decir que el jugador blanco tiene una probabilia de 0.8 para ganar (estando aun la partida en curso). Hasta ahora con el tres en raya solamente podiamos saber si la partida habia o no finalizado y en cuyo caso ver que jugador fue el ganador.
+
+Lo buena que sea la funcion de evaluacion determinara en gran medida lo buena que la IA. Cuanto mas precisa sea la funcion de evaluacion:
+
+- Menos costo computacional demandaremos (no se sobreestima un problema demasiado y por lo tanto no se calculan nuevas e innecesarias capas de posibilidades de estados en Minimax)
+
+- Mas inteligente (no se infravalorara un problema y calcularan menos capas de posibles estados de las que son necesarias)
+
+Siguiendo el ejemplo del ajedrez, podriamos definir una funcion de evaluacion basandonos en el numero de piezas que tiene cada jugador.
+
+En definitiva y resumiendo los algoritmos ed busqueda, estos son una pieza fundamental de la inteligencia artificial puesto que asientan las bases de las decisiones que un agente toma para resolver problemas.
