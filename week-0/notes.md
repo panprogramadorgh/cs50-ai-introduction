@@ -142,7 +142,7 @@ A\* es optimo siempre que tenga una funcion heuristica, una funcion heuristica o
 
 Hasta el momento los algoritmos de busqueda han estado orientados a un solo agente. No obstante tambien existen algoritmos de busqueda con multiples agentes, y estos pueden competir dentro de su entorno con el fin de conseguir un objetivo en particular. (de ahora en adelante pondremos como ejemplo juego tic tac toe donde existen dos agentes con interes opuestos)
 
-Necesitamos un mecanismo para hacer entender a la maquina los conceptos de "ganador" y "perdedor". Podemos codificar esos conceptos asignando un valor numerico a cada posible estado que un tablero de tres en raya puede tener y este valor numerico debe oscilar para tres posibles estados:
+Necesitamos un mecanismo para hacer entender a la maquina los conceptos de "ganador" y "perdedor". Podemos codificar esos conceptos asignando un valor numerico a cada posible estado que un tablero de tres en raya puede tener una vez finalizada la partida:
 
 - No hay ganador -- valor 0
 
@@ -152,7 +152,7 @@ Necesitamos un mecanismo para hacer entender a la maquina los conceptos de "gana
 
 ![encoding-tictactoe-states](./imgs/encoding-tictactoe-states.png)
 
-De acuerdo para codificar un juego tic-tac-toe con una ingeligencia que utilice un algoritmo de busqueda minimax, es decir, donde un agente luche por obtener el mejor resultado y el otro busque minimizar los resultados del otro, tendremos que seguir un enfoque que incluya las siguientes utilidades:
+De acuerdo para codificar un juego tic-tac-toe con un algoritmo de busqueda minimax, tendremos que seguir un enfoque donde usaremos las siguientes utilidades:
 
 - S0: Initial state
 
@@ -170,8 +170,30 @@ En el siguiente diagrama podemos observar graficamente como funciona minimax en 
 
 ![minimax-tictactoe-diagram](./imgs/minimax-tictactoe-diagram.png)
 
-Minimax impulsa al jugador MIN a escoger ramas con el valor mas bajo (mas favorables a que no gane x), mientras el el jugador MAX busca las ramas con mayor valor.
+Minimax impulsa al jugador MIN a escoger los nodos proximos con el valor mas bajo (mas favorables para O), y viceversa para MAX.
 
 En el caso de tic-tac-toe solamente tenemos tres posibles valores para para los siguientes nodos (-1, 0 y 1), pero este algoritmo es extrapolable a entornos donde cada proximo nodo que elijamos pueda tener un mas amplio abanico de posibilidades (en donde igualmente, y en funcion del turno actual, el agente se decantara por la opcion que le convenga mas)
 
 ![minimax-generic-election-diagram](./imgs/minimax-generic-election-diagram.png)
+
+Para implementar el algoritmo tendremos que definir dos funciones recursivas que actuaran entre si para que el agente tome la mejor decision basada en la decision que a su vez tomara el otro agente.
+
+Dado el estado s:
+
+- El agente MAX toma cada accion $\textit{(a)}$ de $\textit{ACTIONS(s)}$ y regresa el valor mas grande entre $\textit{MIN-VALUE(RESULT(s, a))}$
+
+- El agente MIN toma cada accion $\textit{(a)}$ de $\textit{ACTIONS(s)}$ y regresa el valor mas pequeño entre $\textit{MAX-VALUE(RESULT(s, a))}$
+
+> Pseudo codigo para la funcion MAX-VALUE
+
+![pseudo-code-for-maxvalue-in-minimax](./imgs/pseudo-code-for-maxvalue-in-minimax.PNG)
+
+> Pseudo coigo para la funcion MIN-VALUE
+
+![pseudo-code-for-minvalue-in-minimax](./imgs/pseudo-code-for-minvalue-in-minimax.PNG)
+
+## Optimizations
+
+Existen ciertas optimizaciones que podemos hacer a minimax. Para explicarlo nos pondremos desde la perspectiva de MAX, donde MIN es nuestro enemigo. Suponiendo que nuestro contrincante este jugando de la forma mas optima posible, es decir, como jugador MIN, absolutamente siempre elije la opcion mas pequeña entre $\textit{MAX-VALUE(RESULT(s, a))}$, nosotros como jugador MAX, y que por lo tanto tenemos que elegir el camino con el nodo de mas valor de entre $\textit{MIN-VALUE(RESULT(s, a))}$, podemos descartar caminos de nodos por completo antes de terminar de analizarlos, si toca que uno de los valores entre los que tiene que elejir MIN es inferior al valor resultante de alguno de los caminos de nodos que analiza MAX.
+
+![alpha-beta-pruning-with-minimax-diagam](./imgs/alpha-beta-pruning-with-minimax-diagram.PNG)
