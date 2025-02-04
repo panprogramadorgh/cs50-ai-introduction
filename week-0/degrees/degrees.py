@@ -114,13 +114,13 @@ def shortest_path(source, target):
         neighbors: set[tuple[int, int]] = {
             (action, state)
             for (action, state) in neighbors_for_person(source)
-            if state not in explored
+            if state not in explored and not frontier.contains_state(state)
         }
         for movie_id, person_id in neighbors:
-            if is_goal_state(target=target, state=person_id):
-                return path_from_goal(node)
-            if not frontier.contains_state(person_id):
-                frontier.add(Node(state=person_id, parent=node, action=movie_id))
+            next_node = Node(state=person_id, parent=node, action=movie_id)
+            if is_goal_state(target=target, state=next_node.state):
+                return path_from_goal(next_node)
+            frontier.add(next_node)
 
 
 def person_id_for_name(name):
