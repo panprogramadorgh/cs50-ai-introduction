@@ -1,6 +1,5 @@
 import csv
 import sys
-from typing import Optional
 
 from util import Node, StackFrontier, QueueFrontier
 
@@ -96,11 +95,11 @@ def shortest_path(source, target):
     frontier = QueueFrontier()
 
     init_state_node = Node(state=source, parent=None, action=None)
-    if is_goal_node(target=target, node=init_state_node):
-        return (None, source)
+    if is_goal_state(target=target, state=init_state_node.state):
+        return []
     frontier.add(init_state_node)
 
-    explored: set[Node] = set()
+    explored: set[int] = set()
 
     while True:
         # No solution for the problem
@@ -109,16 +108,18 @@ def shortest_path(source, target):
 
         # Current node to explore
         node = frontier.remove()
-        explored.add(node)
+        explored.add(node.state)
 
-        print(node.state)
-
-        neighbors: set[tuple[int, int]] = neighbors_for_person(source)
+        # Filters explored neighbor states
+        neighbors: set[tuple[int, int]] = {
+            (action, state)
+            for (action, state) in neighbors_for_person(source)
+            if state not in explored
+        }
         for movie_id, person_id in neighbors:
-            if is_goal_node(target=target, state=person_id):
-                # Then calculate the full path from current node to the very beggining
+            if is_goal_state(target=target, state=person_id):
                 return path_from_goal(node)
-            if not frontier.contains_state(person_id) and person_id not in explored:
+            if not frontier.contains_state(person_id):
                 frontier.add(Node(state=person_id, parent=node, action=movie_id))
 
 
@@ -162,14 +163,8 @@ def neighbors_for_person(person_id):
 
 
 # Checks if node_or_state corresponds to target
-def is_goal_node(
-    target: int, node: Optional["Node"] = None, state: Optional["int"] = None
-):
-    if node is not None:
-        return node.state == target
-    elif state is not None:
-        return state == target
-    return False
+def is_goal_state(target: int, state: int):
+    return target == state
 
 
 # Creates the full path from the goal node, that consists of a list with tuples as elements, and so forth, each of them contain a movie id and person id

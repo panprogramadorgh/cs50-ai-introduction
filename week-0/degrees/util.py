@@ -21,12 +21,12 @@ class Node:
 
 class StackFrontier:
     def __init__(self):
-        self.frontier = []
+        self.frontier: list[Node] = []
 
-    def add(self, node):
+    def add(self, node: Node):
         self.frontier.append(node)
 
-    def contains_state(self, state):
+    def contains_state(self, state: int):
         return any(node.state == state for node in self.frontier)
 
     def empty(self):
