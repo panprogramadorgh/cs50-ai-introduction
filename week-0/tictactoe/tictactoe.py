@@ -2,13 +2,17 @@
 Tic Tac Toe Player
 """
 
-import math
 from typing import Literal
 from runner import user
+from util import QueueFrontier, Node
 
 X = "X"
 O = "O"
 EMPTY = None
+
+MAX_UTIL = 1
+MIN_UTIL = -1
+TIE_UTIL = 0
 
 
 def initial_state():
@@ -32,15 +36,15 @@ def player(board: list[list[str | None]]):
     return user if px_tokens == po_tokens else opponent
 
 
-def actions(board):
+def actions(board: list[list[str | None]]):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
 
-    possibilities = []
+    possibilities: list[tuple[int, int]] = []
     for i in range(3):
         for j in range(3):
-            if board[i][j] is not None:
+            if board[i][j] is None:
                 possibilities.append((i, j))
 
     return possibilities
@@ -67,7 +71,7 @@ def locate_player_poses(board: list[list[str | None]], player: Literal["X", "O"]
     for row in board:
         row_poses = (X == token for token in row)
         board_poses.append(row_poses)
-    
+
     return tuple(board_poses)
 
 
@@ -110,8 +114,9 @@ def terminal(board):
     board_is_full = True
     for row in board:
         board_is_full = None not in row
-        if not board_is_full: break
-    
+        if not board_is_full:
+            break
+
     return board_is_full or (winner(board) is not None)
 
 
@@ -120,12 +125,77 @@ def utility(board):
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
 
-    opts = { X: 1, O: -1, None: 0 }
+    opts = {X: MAX_UTIL, O: MIN_UTIL, None: TIE_UTIL}
     return opts[winner(board)]
+
+
+# TODO: Obtimize with Apha-Beta Prunning
+
+
+def max_value(board: list[list[str | None]]):
+    if terminal(board):
+        return utility(board)
+    v = -2
+    for action in actions(board):
+        v = max(v, min_value(result(board, action)))
+    return v
+
+
+def min_value(board: list[list[str | None]]):
+    if terminal(board):
+        return utility(board)
+    v = 2
+    for action in actions(board):
+        v = min(v, max_value(board, action))
+    return v
 
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+
+    frontier = QueueFrontier()
+    initial_node = Node(board, None, None)
+    frontier.add(initial_node)
+
+    while True:
+        if frontier.empty():
+            return None
+
+        node = frontier.remove()
+
+        # Implementar optimizacion Alpha-Beta Prunning
+        # Se almacenan los valores para los nodos hermanos.
+        # Para saber los nodos son hermanos, tienen que
+        # depender directamente del mismo nodo.
+        # Los nodos hijos de cada hermano seran introducidos al frontier
+        # (seran descubiertos posteriormente)
+        # solamente en caso de que su valor utility sea
+        # superior al valor del nodo hermano mas alto,
+        # de lo contrario no agregaremos dicho nodo porque
+        # incluira un nodo hijo con un valor demasiado pequeño
+        # y potencialmente elegible por el agente min (si juega
+        # optimamente)
+
+        node_values: dict[int, tuple[int, int] | None] = {
+            MAX_UTIL: None,
+            MIN_UTIL: None,
+            TIE_UTIL: None,
+        }
+        for action in actions(node.state):
+            v = max_value(result(node, action))
+            node_values[v] = action
+            if v == 1:
+                break
+
+        # Tie or (just in case not opptimal) action is returned
+        next_action = (
+            node_values[MAX_UTIL] or node_values[TIE_UTIL] or node_values[MIN_UTIL]
+        )
+        next_state = result(node.state, next_action)
+
+        if terminal(next_state):
+            return next_action
+
+        frontier.add(Node(state=next_state, parent=node, action=next_action))
