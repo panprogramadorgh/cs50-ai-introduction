@@ -2,9 +2,7 @@
 Tic Tac Toe Player
 """
 
-import sys
-from typing import Literal
-from util import QueueFrontier, Node
+from typing import Literal, Optional
 
 X = "X"
 O = "O"
@@ -15,6 +13,45 @@ MIN_UTIL = -1
 TIE_UTIL = 0
 
 user = None
+
+
+class Node:
+    def __init__(
+        self,
+        state: list[list[str | None]],
+        parent: Optional["Node"],
+        action: Optional[tuple[int, int]],
+    ):
+        self.state = state
+        self.parent = parent
+        self.action = action
+
+
+class StackFrontier:
+    def __init__(self):
+        self.frontier: list[Node] = []
+
+    def add(self, node: Node):
+        self.frontier.append(node)
+
+    def contains_state(self, state: tuple[int, int]):
+        return any(s.state == state for s in self.frontier)
+
+    def empty(self):
+        return len(self.frontier) == 0
+
+    def remove(self):
+        node = self.frontier[-1]
+        self.frontier = self.frontier[:-1]
+        return node
+
+
+class QueueFrontier(StackFrontier):
+
+    def remove(self):
+        node = self.frontier[0]
+        self.frontier = self.frontier[1:]
+        return node
 
 
 def initial_state():
@@ -28,7 +65,7 @@ def player(board: list[list[str | None]]):
     """
     Returns player who has the next turn on a board.
     """
-    opponent = user if user == X else O
+    opponent = O if user == X else X
     px_tokens, po_tokens = 0, 0
 
     for row in board:
@@ -57,7 +94,8 @@ def result(board: list[list[str | None]], action):
     Returns the board that results from making move (i, j) on the board.
     """
 
-    boardcpy = board.copy()
+    # Deep bidimensional list copy
+    boardcpy = [[token for token in row] for row in board]
     i, j = action
     p = player(boardcpy)
     boardcpy[i][j] = p
@@ -73,7 +111,7 @@ def locate_player_poses(board: list[list[str | None]], player: Literal["X", "O"]
     for row in board:
         row_poses = tuple(player == token for token in row)
         board_poses.append(row_poses)
-    
+
     return tuple(board_poses)
 
 
@@ -99,9 +137,9 @@ def winner(board):
 
     for combo in winner_combos:
         if combo == px_board_poses:
-            return px_board_poses
+            return X
         elif combo == po_board_poses:
-           return po_board_poses 
+            return O
     return None
 
 
