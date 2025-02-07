@@ -2,8 +2,8 @@
 Tic Tac Toe Player
 """
 
+import sys
 from typing import Literal
-from runner import user
 from util import QueueFrontier, Node
 
 X = "X"
@@ -13,6 +13,8 @@ EMPTY = None
 MAX_UTIL = 1
 MIN_UTIL = -1
 TIE_UTIL = 0
+
+user = None
 
 
 def initial_state():
@@ -69,9 +71,9 @@ def locate_player_poses(board: list[list[str | None]], player: Literal["X", "O"]
 
     board_poses: list[tuple[bool, bool, bool]] = []
     for row in board:
-        row_poses = (X == token for token in row)
+        row_poses = tuple(player == token for token in row)
         board_poses.append(row_poses)
-
+    
     return tuple(board_poses)
 
 
@@ -95,15 +97,12 @@ def winner(board):
     px_board_poses = locate_player_poses(board, X)
     po_board_poses = locate_player_poses(board, O)
 
-    # Checks for combos ocurrences
-    px_is_winner = (
-        X if any(combo == tuple(px_board_poses) for combo in winner_combos) else None
-    )
-    po_is_winner = (
-        O if any(combo == tuple(po_board_poses) for combo in winner_combos) else None
-    )
-
-    return px_is_winner or po_is_winner
+    for combo in winner_combos:
+        if combo == px_board_poses:
+            return px_board_poses
+        elif combo == po_board_poses:
+           return po_board_poses 
+    return None
 
 
 def terminal(board):
@@ -146,7 +145,7 @@ def min_value(board: list[list[str | None]]):
         return utility(board)
     v = 2
     for action in actions(board):
-        v = min(v, max_value(board, action))
+        v = min(v, max_value(result(board, action)))
     return v
 
 
@@ -184,7 +183,7 @@ def minimax(board):
             TIE_UTIL: None,
         }
         for action in actions(node.state):
-            v = max_value(result(node, action))
+            v = max_value(result(node.state, action))
             node_values[v] = action
             if v == 1:
                 break
@@ -193,6 +192,9 @@ def minimax(board):
         next_action = (
             node_values[MAX_UTIL] or node_values[TIE_UTIL] or node_values[MIN_UTIL]
         )
+        if next_action is None:
+            continue
+
         next_state = result(node.state, next_action)
 
         if terminal(next_state):

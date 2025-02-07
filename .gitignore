@@ -1,3 +1,5 @@
 bin
 week-0/degrees/large
 week-0/degrees/small
+myenv
+__pycache__
