@@ -172,7 +172,7 @@ def utility(board):
 def max_value(board: list[list[str | None]]):
     if terminal(board):
         return utility(board)
-    v = -2
+    v = MIN_UTIL - 1
     for action in actions(board):
         v = max(v, min_value(result(board, action)))
     return v
@@ -181,7 +181,7 @@ def max_value(board: list[list[str | None]]):
 def min_value(board: list[list[str | None]]):
     if terminal(board):
         return utility(board)
-    v = 2
+    v = MAX_UTIL + 1
     for action in actions(board):
         v = min(v, max_value(result(board, action)))
     return v
