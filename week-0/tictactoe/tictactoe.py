@@ -2,7 +2,7 @@
 Tic Tac Toe Player
 """
 
-from typing import Literal, Optional
+from typing import Literal
 
 X = "X"
 O = "O"
@@ -13,45 +13,6 @@ MIN_UTIL = -1
 TIE_UTIL = 0
 
 user = None
-
-
-class Node:
-    def __init__(
-        self,
-        state: list[list[str | None]],
-        parent: Optional["Node"],
-        action: Optional[tuple[int, int]],
-    ):
-        self.state = state
-        self.parent = parent
-        self.action = action
-
-
-class StackFrontier:
-    def __init__(self):
-        self.frontier: list[Node] = []
-
-    def add(self, node: Node):
-        self.frontier.append(node)
-
-    def contains_state(self, state: tuple[int, int]):
-        return any(s.state == state for s in self.frontier)
-
-    def empty(self):
-        return len(self.frontier) == 0
-
-    def remove(self):
-        node = self.frontier[-1]
-        self.frontier = self.frontier[:-1]
-        return node
-
-
-class QueueFrontier(StackFrontier):
-
-    def remove(self):
-        node = self.frontier[0]
-        self.frontier = self.frontier[1:]
-        return node
 
 
 def initial_state():
@@ -97,7 +58,7 @@ def actions(board: list[list[str | None]]):
     return possibilities
 
 
-def result(board: list[list[str | None]], action):
+def result(board: list[list[str | None]], action: tuple[int, int]):
     """
     Returns the board that results from making move (i, j) on the board.
     """
@@ -128,9 +89,6 @@ def winner(board):
     Returns the winner of the game, if there is one.
     """
 
-    # FIXME: Crear funcion comparativa de los combos
-
-    players: set[str]
     winner_combos = (
         ((True, True, True), (False, False, False), (False, False, False)),
         ((False, False, False), (True, True, True), (False, False, False)),
@@ -145,9 +103,6 @@ def winner(board):
     # Locates player's tokens positions
     px_board_poses = locate_player_poses(board, X)
     po_board_poses = locate_player_poses(board, O)
-
-    # print(px_board_poses)
-    # print(po_board_poses)
 
     for combo in winner_combos:
         players = {X, O}
@@ -195,7 +150,7 @@ def utility(board):
 def max_value(board: list[list[str | None]]):
     if terminal(board):
         return utility(board)
-    v = MIN_UTIL - 1
+    v = -float("inf")
     for action in actions(board):
         v = max(v, min_value(result(board, action)))
     return v
@@ -204,7 +159,7 @@ def max_value(board: list[list[str | None]]):
 def min_value(board: list[list[str | None]]):
     if terminal(board):
         return utility(board)
-    v = MAX_UTIL + 1
+    v = float("inf")
     for action in actions(board):
         v = min(v, max_value(result(board, action)))
     return v
@@ -215,62 +170,29 @@ def minimax(board):
     Returns the optimal action for the current player on the board.
     """
 
-    frontier = QueueFrontier()
-    initial_node = Node(board, None, None)
-    frontier.add(initial_node)
+    # No game winner
+    if terminal(board):
+        return None
 
+    # The current user
     p = player(board)
+    best_action = None
 
-    # Should always be min_value since the player who starts the game is always user and user is the max agent
-    value_calculator = max_value if p == user else min_value
+    # It is the turn of the opponent because the last movement is made by user
+    if p == user:
+        best_value = -float("inf")
+        for action in actions(board):
+            v = min_value(result(board, action))
+            if v < best_value:
+                best_value = v
+                best_action = action
+    else:
+        best_value = float("inf")
+        best_action = None
+        for action in actions(board):
+            v = max_value(result(board, action))
+            if v < best_value:
+                best_value = v
+                best_action = action
 
-    # Should always be MIN_UTIL since the player who starts the game is always user and user is the max agent
-    greedy_value = MAX_UTIL if p == user else MIN_UTIL
-    ungreedy_value = MAX_UTIL if p != user else MIN_UTIL
-
-    while True:
-        if frontier.empty():
-            return None
-
-        node = frontier.remove()
-        # print(node.action)
-
-        # Implementar optimizacion Alpha-Beta Prunning
-        # Se almacenan los valores para los nodos hermanos.
-        # Para saber los nodos son hermanos, tienen que
-        # depender directamente del mismo nodo.
-        # Los nodos hijos de cada hermano seran introducidos al frontier
-        # (seran descubiertos posteriormente)
-        # solamente en caso de que su valor utility sea
-        # superior al valor del nodo hermano mas alto,
-        # de lo contrario no agregaremos dicho nodo porque
-        # incluira un nodo hijo con un valor demasiado pequeño
-        # y potencialmente elegible por el agente min (si juega
-        # optimamente)
-
-        node_values: dict[int, tuple[int, int] | None] = {
-            MAX_UTIL: None,
-            MIN_UTIL: None,
-            TIE_UTIL: None,
-        }
-        for action in actions(node.state):
-            v = value_calculator(result(node.state, action))
-            node_values[v] = action
-            if v == greedy_value:
-                break
-
-        # Tie or (just in case not opptimal) action is returned
-        next_action = (
-            node_values[greedy_value]
-            or node_values[TIE_UTIL]
-            or node_values[ungreedy_value]
-        )
-        if next_action is None:
-            continue
-
-        next_state = result(node.state, next_action)
-
-        if terminal(next_state):
-            return next_action
-
-        frontier.add(Node(state=next_state, parent=node, action=next_action))
+    return best_action

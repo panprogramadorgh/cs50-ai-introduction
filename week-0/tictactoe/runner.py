@@ -3,7 +3,6 @@ import sys
 import time
 
 import tictactoe as ttt
-from tictactoe import user
 
 pygame.init()
 size = width, height = 600, 400
@@ -30,7 +29,7 @@ while True:
     screen.fill(black)
 
     # Let user choose a player.
-    if user is None:
+    if ttt.user is None:
 
         # Draw title
         title = largeFont.render("Play Tic-Tac-Toe", True, white)
@@ -59,17 +58,16 @@ while True:
             mouse = pygame.mouse.get_pos()
             if playXButton.collidepoint(mouse):
                 time.sleep(0.2)
-                user = ttt.X
+                ttt.user = ttt.X
             elif playOButton.collidepoint(mouse):
                 time.sleep(0.2)
-                user = ttt.O
+                ttt.user = ttt.O
 
     else:
 
         # Draw game board
         tile_size = 80
-        tile_origin = (width / 2 - (1.5 * tile_size),
-                       height / 2 - (1.5 * tile_size))
+        tile_origin = (width / 2 - (1.5 * tile_size), height / 2 - (1.5 * tile_size))
         tiles = []
         for i in range(3):
             row = []
@@ -77,7 +75,8 @@ while True:
                 rect = pygame.Rect(
                     tile_origin[0] + j * tile_size,
                     tile_origin[1] + i * tile_size,
-                    tile_size, tile_size
+                    tile_size,
+                    tile_size,
                 )
                 pygame.draw.rect(screen, white, rect, 3)
 
@@ -99,8 +98,8 @@ while True:
                 title = f"Game Over: Tie."
             else:
                 title = f"Game Over: {winner} wins."
-        elif user == player:
-            title = f"Play as {user}"
+        elif ttt.user == player:
+            title = f"Play as {ttt.user}"
         else:
             title = f"Computer thinking..."
         title = largeFont.render(title, True, white)
@@ -109,7 +108,7 @@ while True:
         screen.blit(title, titleRect)
 
         # Check for AI move
-        if user != player and not game_over:
+        if ttt.user != player and not game_over:
             if ai_turn:
                 time.sleep(0.5)
                 move = ttt.minimax(board)
@@ -120,11 +119,11 @@ while True:
 
         # Check for a user move
         click, _, _ = pygame.mouse.get_pressed()
-        if click == 1 and user == player and not game_over:
+        if click == 1 and ttt.user == player and not game_over:
             mouse = pygame.mouse.get_pos()
             for i in range(3):
                 for j in range(3):
-                    if (board[i][j] == ttt.EMPTY and tiles[i][j].collidepoint(mouse)):
+                    if board[i][j] == ttt.EMPTY and tiles[i][j].collidepoint(mouse):
                         board = ttt.result(board, (i, j))
 
         if game_over:
@@ -139,7 +138,7 @@ while True:
                 mouse = pygame.mouse.get_pos()
                 if againButton.collidepoint(mouse):
                     time.sleep(0.2)
-                    user = None
+                    ttt.user = None
                     board = ttt.initial_state()
                     ai_turn = False
 
