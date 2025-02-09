@@ -61,6 +61,14 @@ def initial_state():
     return [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]]
 
 
+def print_state(board: list[list[str | None]], end=""):
+    for row in board:
+        for token in row:
+            print(token + " " if token is not None else "· ", end="")
+        print()
+    print(end)
+
+
 def player(board: list[list[str | None]]):
     """
     Returns player who has the next turn on a board.
@@ -120,6 +128,9 @@ def winner(board):
     Returns the winner of the game, if there is one.
     """
 
+    # FIXME: Crear funcion comparativa de los combos
+
+    players: set[str]
     winner_combos = (
         ((True, True, True), (False, False, False), (False, False, False)),
         ((False, False, False), (True, True, True), (False, False, False)),
@@ -135,11 +146,23 @@ def winner(board):
     px_board_poses = locate_player_poses(board, X)
     po_board_poses = locate_player_poses(board, O)
 
+    # print(px_board_poses)
+    # print(po_board_poses)
+
     for combo in winner_combos:
-        if combo == px_board_poses:
-            return X
-        elif combo == po_board_poses:
-            return O
+        players = {X, O}
+        for i in range(3):
+            for j in range(3):
+                if not combo[i][j]:
+                    continue
+                if not px_board_poses[i][j]:
+                    players.discard(X)
+                if not po_board_poses[i][j]:
+                    players.discard(O)
+        if len(players) == 1:
+            return players.pop()  # The only token is the winner
+
+    # If both players win (illigal board), then return None
     return None
 
 
@@ -196,11 +219,21 @@ def minimax(board):
     initial_node = Node(board, None, None)
     frontier.add(initial_node)
 
+    p = player(board)
+
+    # Should always be min_value since the player who starts the game is always user and user is the max agent
+    value_calculator = max_value if p == user else min_value
+
+    # Should always be MIN_UTIL since the player who starts the game is always user and user is the max agent
+    greedy_value = MAX_UTIL if p == user else MIN_UTIL
+    ungreedy_value = MAX_UTIL if p != user else MIN_UTIL
+
     while True:
         if frontier.empty():
             return None
 
         node = frontier.remove()
+        # print(node.action)
 
         # Implementar optimizacion Alpha-Beta Prunning
         # Se almacenan los valores para los nodos hermanos.
@@ -221,14 +254,16 @@ def minimax(board):
             TIE_UTIL: None,
         }
         for action in actions(node.state):
-            v = max_value(result(node.state, action))
+            v = value_calculator(result(node.state, action))
             node_values[v] = action
-            if v == 1:
+            if v == greedy_value:
                 break
 
         # Tie or (just in case not opptimal) action is returned
         next_action = (
-            node_values[MAX_UTIL] or node_values[TIE_UTIL] or node_values[MIN_UTIL]
+            node_values[greedy_value]
+            or node_values[TIE_UTIL]
+            or node_values[ungreedy_value]
         )
         if next_action is None:
             continue

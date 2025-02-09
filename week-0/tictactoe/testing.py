@@ -1,27 +1,18 @@
 import tictactoe as ttt
-import sys
 
 # Testing and debugging file
 
-
-def print_board(board: list[list[str | None]]):
-    for row in board:
-        for token in row:
-            print(token + " " if token is not None else "· ", end="")
-        print()
-
-
 ttt.user = ttt.X
+ia = ttt.O if ttt.user == ttt.X else ttt.X
 
 board = ttt.initial_state()
-# game_over = False
-ai_turn = False
+player = ttt.user
 
 while not ttt.terminal(board):
-    print_board(board)
+    ttt.print_state(board)
     print()
 
-    if not ai_turn:
+    if player == ttt.user:
         input_text = input("Enter your movement (e.g 1,2): ")
 
         # Excepcion si argumentos invalidos
@@ -31,10 +22,13 @@ while not ttt.terminal(board):
             raise Exception("Invalid player movement")
 
         board = ttt.result(board, player_move)
-        ai_turn = True
+        player = ia
         continue
 
     print("Computer thinking ...")
     ai_move = ttt.minimax(board)
     board = ttt.result(board, ai_move)
-    ai_turn = False
+    player = ttt.user
+
+print("Game Over")
+print("Player", ttt.winner(board), "has wone")
