@@ -178,17 +178,15 @@ def minimax(board):
     p = player(board)
     best_action = None
 
-    # It is the turn of the opponent because the last movement is made by user
     if p == user:
         best_value = -float("inf")
         for action in actions(board):
             v = min_value(result(board, action))
-            if v < best_value:
+            if v > best_value:
                 best_value = v
                 best_action = action
     else:
         best_value = float("inf")
-        best_action = None
         for action in actions(board):
             v = max_value(result(board, action))
             if v < best_value:
