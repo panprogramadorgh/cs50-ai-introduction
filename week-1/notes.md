@@ -12,7 +12,7 @@ De las anteriores frases podemos inferir la siguiente informacion adicional:
 
 - **Esta lloviendo**: Porque si no lloviera Harry estaria visitando a Hagrid, sin embargo esta visitando a Dumbledore
 
-## Propositional Logic
+# Propositional Logic
 
 La logica proposicional consiste en el razonamiento basado en afirmaciones sobre el mundo y conforman una representacion interna de conocimiento. Cada una de estas proposiciones que afirman hechos las conocemos como `sentences` (afirman pero no tienen por que ser ciertas).
 
@@ -38,7 +38,7 @@ Si Harry visita a Dumbledore (y esta afirmacion es cierta), pero no esta llovien
 
 Siguiendo con el ejemplo anterior, podemos encontrar un fallo logico al utilizar `implication`. Si la primera afirmacion no es cierta y la seguda afirmacion si lo es, existiria implicacion. Para el ejemplo dado seria mas adecuado un `bicondicional implication` connective.
 
-### Model
+## Model
 
 En un sistema de representacion de conocimiento basado en logica proposicional, un modelo es un contenedor que agrupa relaciones de veracidad con respecto a cada una de las `sentences`. Cada posible configuracion que pueda tener nuestro modelo podemos decir que es un universo diferente, donde el razonamiento aplicado generara resultados diferentes dada la naturaleza del valor asignado sobre cada proposicion de afirmacion incluida en este contenedor.
 
@@ -46,18 +46,27 @@ En un sistema de representacion de conocimiento basado en logica proposicional, 
 
 ![model-concept](./imgs/model-concept.PNG)
 
-### Knowledge base
+## Knowledge base
 
 Representa todas las sentences al alcance de un agente basado en conocimiento.
 
-### Entailment
+## Entailment
 
-Consiste en un connectivo logico utilizado para implicar simbolos a lo largo de los diferentes modelos, no solamente para un modelo en particular.
-
-Si $\textit{α}$ es verdadero, $\textit{β}$ lo es tambien para todos los modelos.
-
-```math
-α |= β
-```
+Proceso de verificacion sobre un modelo dada la consulta $\textit{α}$.
 
 Gracias al `entailment` podemos sacar conclusiones para la base de conocimiento; esto es lo que conocemos como `inferencia`.
+
+![propositional-logic-inference-diagram](./imgs/propositional-logic-inference-diagram.PNG)
+
+De esta manera podemos preguntarnos si
+
+![does-kb-entails-alpha](./imgs/does-kb-entails-alpha.PNG)
+
+## Algorithms
+
+### Model Checking
+
+Consiste en explorar todos los posibles modelos y verificar sobre cada uno si la consulta (union de simbolos con conectivos logicos), da como resultado que la base de conocimiento es verdadera.
+
+![model-checking-for-alpha](./imgs/model-checking-for-alpha.PNG)
+
