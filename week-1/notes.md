@@ -52,13 +52,11 @@ Representa todas las sentences al alcance de un agente basado en conocimiento.
 
 ## Entailment
 
-Proceso de verificacion sobre un modelo dada la consulta $\textit{α}$.
-
-Gracias al `entailment` podemos sacar conclusiones para la base de conocimiento; esto es lo que conocemos como `inferencia`.
+Mecanismo de consulta / inferencia de un simbolo determinado en un modelo (modelo en cuyo caso el simbolo ha de estar presente) contra una base de conocimiento.
 
 ![propositional-logic-inference-diagram](./imgs/propositional-logic-inference-diagram.PNG)
 
-De esta manera podemos preguntarnos si
+De esta manera, podemos representar la idea de: "Con el conocimiento presente, podemos decir que esta lloviendo ?" con la siguiente expresion:
 
 ![does-kb-entails-alpha](./imgs/does-kb-entails-alpha.PNG)
 
@@ -66,7 +64,12 @@ De esta manera podemos preguntarnos si
 
 ### Model Checking
 
-Consiste en explorar todos los posibles modelos y verificar sobre cada uno si la consulta (union de simbolos con conectivos logicos), da como resultado que la base de conocimiento es verdadera.
+Model checking es por lo tanto un algoritmo para hacer entailment con una base de conocimiento y simbolo determinado $α$, que consiste en iterar sobre todos los modelos y verificar sobre cada uno, si el knowledge base es verdadero y ademas el simbolo se encuentra con el mismo valor en el modelo/modelos compatible con la base de conocimiento.
+
+Es totalmente factible construir una base de conocimiento (kb) compatible con mas de un modelo al mismo tiempo (de ahi que cada uno de ellos no solamente tiene que ser compatible con el kb, si no que tambien tiene que incluir el simbolo consultado con el mismo valor).
+
+Puede darse el caso donde tengamos varios modelos compatibles para una base de conocimiento y que el valor para el simbolo dentro de los modelos sea arbitrario. Esto significa que algoritmo no tiene consenso a ciencia cierta sobre si existe o no inferencia sobre ese simbolo consultado (podriamos incluso hacer un calculo de probabilidad y analizar que tan probable es que sea cierta la inferencia del simbolo).
 
 ![model-checking-for-alpha](./imgs/model-checking-for-alpha.PNG)
 
+Model checking no es un algoritmo perfecto. Si bien podemos intentar optimizar el rendimiento de este, es un algoritmo poco eficiente. Esto es mas notorio a medida que incrementamos el numero de simbolos en la base de conocimiento.
