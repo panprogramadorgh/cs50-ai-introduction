@@ -73,3 +73,73 @@ Puede darse el caso donde tengamos varios modelos compatibles para una base de c
 ![model-checking-for-alpha](./imgs/model-checking-for-alpha.PNG)
 
 Model checking no es un algoritmo perfecto. Si bien podemos intentar optimizar el rendimiento de este, es un algoritmo poco eficiente. Esto es mas notorio a medida que incrementamos el numero de simbolos en la base de conocimiento.
+
+De acuerdo para evitar iterar sobre todos los modelos posibles, existen mecanismos como las `inference rules`. Que permiten sintetizar el conocimiento actual en nuevas formas de conocimiento.
+
+### Inference rules
+
+Una forma de representar `inference rules` es mediante una linea horizontal. Encima de la linea tenemos una premisa, algo que en definitiva sabemos que es verdadero, y debajo las conslusiones a las que podemos llegar tras aplicar las reglas de inferencia.
+
+- **Modus Ponens**: Este tipo de regla es aplicada para simplificar implicaciones entre dos simbolos (alpha y beta).
+
+Se basa en la premisa de que alpha es verdadero, en cuyo caso el nuevo conocimiento inferido es beta.
+
+![modus-ponens-example](./imgs/modus-ponens-example.png)
+
+No estamos tratando con ningun modelo en particular si no con el conocimiento que sabemos.
+
+- **And Elimination**: Esta regla de inferencia toma la premisa de que si dos simbolos unidos por un conectivo `and` son verdaderos (alpha y beta), entonces el conocimiento inferido puede simplificarse simplemente a "es alpha/beta verdadero" en lugar de "es alpha y beta verdadero".
+
+![and-elimination](./imgs/and-elimination.png)
+
+- **Double Negation Elimination**: Esta regla de inferencia se basa en la premisa de que un simbolo doblemente negado es lo mismo que no negarlo desde un principio.
+
+![double-negation-elimination](./imgs/double-negation-elimination.png)
+
+- **Implication Elimination**: Se basa en la premisa de que una implicacion resulta igual que negar el antecedente y unirlo al consecuente con un conectivo `or`.
+
+![implication-elimination](./imgs/implication-elimination.png)
+
+- **Biconditional Elimination**: Se basa en la premisa de que dos implicaciones unidas por el connectivo `and` hacen la misma funcion que un biconditional
+
+![biconditional-elimination](./imgs/biconditional-elimination.png)
+
+- **Morgan's Law**: Una de las leyes de Morgan puede ser utilizada como regla de inferencia. Esta pone como premisa que una matriz de simboloss unidos con `and` y posteriormente la negacion total de la expresion es equivalente a una matriz simbolos negados unidos por `or`.
+
+![morgans-law-first](./imgs/morgans-law-first.png)
+
+La ley de Morgan tambien es aplicarle al caso contrario donde negamos una matriz de simbolos unidos por `or`, de donde podemos sacar la conclusion de que nos estamos enfrentando a una matriz de simbolos negados unidos por `and`.
+
+![morgans-law-second](./imgs/morgans-law-second.png)
+
+- **Distributive Property**: La propiedad distributiva comummente empleada en matematicas con la finalidad de hacer calculos cotidianos tambien puede ser empleada en este conexto de relaciones entre simbolos con conectivos logicos.
+
+![distributive-property](./imgs/distributive-property.png)
+
+
+### Theorem Proving
+
+Consiste en una tecnica que combina algoritmos de busquda con knowledge engineering con el fin de hacer inferencias de manera considerablemente mas eficiente.
+
+![theorem-proving-concept](./imgs/theorem-proving-concept.png)
+
+### Unit Resolution Rule
+
+Sobre esta regla se basa otro algoritmo de inferencia de conocimiento. En la regla de union de resolucion disponemos de dos literales diferentes, cada uno de los cuales contradice al otro. Pensemos por un momento en los simbolso alpha y beta; la idea es que si alpha es falso, entonces beta es verdadero por descarte; por el contrario si alpha, si sabemos que alpha es verdadero, entonces beta tiene que ser falso.
+
+Esto es expresable con logica proposcional de la siguiente manera:
+
+![unit-resolution](./imgs/unit-resolution.png)
+
+Cada uno de los literales en esta regla de inferencia no esta limitado a ser un unico simbolo, en su lugar puede haber una compleja relacion de simbolos y connectivos logicos anidados.
+
+De vez en cuando podemos toparnos con un caso donde la regla infiera mas de un simbolo al mismo tiempo. Si disponemos de un conocimiento inicial que dice: "Ron esta en el salor **o** Hermion esta en la biblioteca" y tomamos como accion esta regla, agregando tambien la siguiente informacion en adicion: "Ron no esta en el salor **y** Harry esta durmiendo":
+
+![unit-resolution-multiple-inference](./imgs/unit-resolution-multiple-inference-example.png)
+
+Seremos capaces de inferir el siguiente nuevo conocimiento:
+
+ - Hermion esta en la biblioteca **o**
+ - Harry esta durmiendo
+
+
