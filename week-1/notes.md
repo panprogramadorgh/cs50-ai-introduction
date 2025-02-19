@@ -142,4 +142,11 @@ Seremos capaces de inferir el siguiente nuevo conocimiento:
  - Hermion esta en la biblioteca **o**
  - Harry esta durmiendo
 
+Si trataramos de inferir conocimiento con `unit resolution` sobre una base de conocimiento inicial `Or(Q, Not(Q))` (una clausula nula), obtendremos como inferencia false.
 
+Precisamente en este principio de clausulas nulas nos basamos para el algoritmo de inferencia por resolucion.
+
+
+### Inference by Resolution
+
+De acuerdo para determinar si existe entailmente entre un simbolo determinado en una base de conocimiento utilizamos el principio de prueba por contradiccion. Si existe contradiccion, es decir, la base de conocimiento es verdadera pero el simbolo no, consideramos que el simbolo hace entailment; por el contrario no.
