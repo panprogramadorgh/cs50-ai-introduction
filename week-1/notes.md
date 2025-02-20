@@ -149,4 +149,46 @@ Precisamente en este principio de clausulas nulas nos basamos para el algoritmo 
 
 ### Inference by Resolution
 
-De acuerdo para determinar si existe entailmente entre un simbolo determinado en una base de conocimiento utilizamos el principio de prueba por contradiccion. Si existe contradiccion, es decir, la base de conocimiento es verdadera pero el simbolo no, consideramos que el simbolo hace entailment; por el contrario no.
+De acuerdo para determinar si existe entailmente entre un simbolo determinado en una base de conocimiento utilizamos el principio de prueba por contradiccion (proof by contradiction).
+
+A partir de `And(KB, Not(A))` (union de clausulas en forma conjuntiva), buscaremos crear inferir nuevas clausulas con alguna de las `inference rules`.
+
+En la nueva conjuncion buscaremos clausulas nulas (`And(Q, Not(Q))`); en cuyo caso habremos encontrado entailment del simbolo `A` con la base de conocimiento proporcionada.
+
+Si tras haber inferido todas las clausulas posibles no nos topamos con ningun clausula nula, entonces no habra entailment con el simbolo
+
+![inference-resolution-example](./imgs/inference-resolution-example.png)
+
+Podemos decir `kb` es verdadero y `A` lo es tambien.
+
+
+## First-Order Logic
+
+Todos los anteriores algoritmos estan basados en logica proposicional. La logica proposicional puede ser ineficiente en situaciones como el juego mastermind o puzzle por la cantidad de simbolos que tenian que ser creados (cada simbolo solamente puede tener un valor booleano).
+
+En la logica de primer orden disponemos dos tipos diferentes de simbolos:
+
+ - **constant**: Ya no representa la "verdad" de una proposicion de afirmacion con un valor booleano, y en su lugar representa un objeto.
+
+ - **predicate**: Actuan como un verificador de cualidades sobre un simbolo constante, por lo tanto retornan un booleano
+
+> El logica de primer orden tambien disponemos de conectivos logicos.
+
+### Quantifiers
+
+En logica de primer nivel disponemos de mecanismo para representar ideas incluso mas complejas (comunmente conocidos como `quantifiers`)
+
+- **global quantification**: Permite expresar la idea de que algo va a ser verdadero para todos los valores de una variable.
+
+![universal-quantification](./imgs/universal-quantification.png)
+
+> En la imagen de arriba x puede asumir cualquier simbolo constante; por lo tanto, todas las personas que pertenezcan a Gryffindor no pertenecen a Hufflepuff.
+
+- **existencial quantification**: Expresa la idea de que algo sera verdadero bajo ciertos valores de una variable.
+
+![existencial-quantification](./imgs/existencial-quantification.png)
+
+> En este caso, x representan todas las casas a las que pertenece Minerva
+
+
+
