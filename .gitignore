@@ -1,5 +1,6 @@
 bin
+myenv
 week-0/degrees/large
 week-0/degrees/small
-myenv
+.zip
 __pycache__

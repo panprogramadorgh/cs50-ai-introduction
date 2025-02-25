@@ -2,6 +2,36 @@ import itertools
 import random
 
 
+def neighbor_cells(cell: tuple[int, int], width: int, height: int):
+    neighbors: set[tuple[int, int]] = set()
+    
+    # Wall boundaries
+    if cell[0] > 0:
+        neighbors.add((cell[0] - 1, cell[1]))
+    if cell[0] < width:
+        neighbors.add((cell[0] + 1, cell[1]))
+    if cell[1] > 0:
+        neighbors.add((cell[0], cell[1] - 1))
+    if cell[1] < height:
+        neighbors.add((cell[0], cell[1] + 1))
+    
+    # Top-left corner
+    if cell[0] > 0 and cell[1] > 0:
+        neighbors.add((cell[0] - 1, cell[1] - 1))
+    # Bottom-right corner
+    if cell[0] < width and cell[1] < height:
+        neighbors.add((cell[0] + 1, cell[1] + 1))
+    
+    # Bottom-left corner
+    if cell[0] > 0 and cell[1] < height:
+        neighbors.add((cell[0] - 1, cell[1] + 1))
+    # Top-Right corner
+    if cell[0] < width and cell[1] > 0:
+        neighbors.add((cell[0] + 1, cell[1] - 1))
+    
+    return neighbors
+
+
 class Minesweeper():
     """
     Minesweeper game representation
@@ -95,6 +125,9 @@ class Sentence():
         self.cells = set(cells)
         self.count = count
 
+        self._mines: set[tuple[int, int]] = set()
+        self._safes: set[tuple[int, int]] = set()
+
     def __eq__(self, other):
         return self.cells == other.cells and self.count == other.count
 
@@ -105,27 +138,32 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        raise NotImplementedError
+        return self._mines
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        raise NotImplementedError
+        return self._safes
 
     def mark_mine(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        raise NotImplementedError
+        if cell in self.cells:
+            self._mines.add(cell)
+            self.cells.remove(cell)
+            self.count -= 1
 
     def mark_safe(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        raise NotImplementedError
+        if cell in self.cells:
+            self._safes.add(cell)
+            self.cells.remove(cell)
 
 
 class MinesweeperAI():
@@ -182,6 +220,60 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
+
+        # Desn't make any sense to check the move in two times
+        if cell in self.moves_made:
+            return 
+        self.moves_made.add(cell)
+        self.safes.add(cell)
+
+        # Neighbor cells relative to current cell's pos
+        neighbors = neighbor_cells(cell, self.width, self.height)
+
+        s = Sentence(neighbors, count)
+        self.knowledge.append(s) 
+
+        # Basic inference based on count value
+        if count == 0:
+            for neighbor in neighbors:
+                for sentence in self.knowledge:
+                    sentence.make_safe(neighbor)
+        elif len(neighbors) == count:
+            for neighbor in neighbors:
+                for sentence in self.knowledge:
+                    sentence.make_mine(neighbor)
+        
+        # Draws extra inference based on other sentences
+        for sentence in self.knowledge:
+            # Commmon cells between sentences
+            ocurrences: set[tuple[int, int]] = set()
+            # Inferred knowledge
+            mines_subset: set[tuple[int, int]] = set()
+
+            # No possible inferences
+            if s.count == sentence.count:
+                continue
+
+            for cell in sentence.cells:     
+                if cell in s.cells:
+                    ocurrences.add(cell)
+           
+            # Calculates the mines subset
+            if s.count > sentence.count:
+                for inferred in s.cells:
+                    if inferred in ocurrences:
+                       pass 
+                    mines_subset.add(inferred)
+            elif s.count < sentence.count:
+                for inferred in sentence.cells:
+                    if inferred in ocurrences:
+                        pass
+                    mines_subset.add(inferred)
+            
+            inferred_sentence = Sentence(mines_subset, abs(s.count - sentence.count))
+            self.knowledge.append(inferred_sentence)
+            
+
         raise NotImplementedError
 
     def make_safe_move(self):
