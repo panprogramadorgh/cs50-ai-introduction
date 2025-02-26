@@ -1,10 +1,11 @@
 import itertools
 import random
+import copy
 
 
 def neighbor_cells(cell: tuple[int, int], width: int, height: int):
     neighbors: set[tuple[int, int]] = set()
-    
+
     # Wall boundaries
     if cell[0] > 0:
         neighbors.add((cell[0] - 1, cell[1]))
@@ -14,25 +15,25 @@ def neighbor_cells(cell: tuple[int, int], width: int, height: int):
         neighbors.add((cell[0], cell[1] - 1))
     if cell[1] < height:
         neighbors.add((cell[0], cell[1] + 1))
-    
+
     # Top-left corner
     if cell[0] > 0 and cell[1] > 0:
         neighbors.add((cell[0] - 1, cell[1] - 1))
     # Bottom-right corner
     if cell[0] < width and cell[1] < height:
         neighbors.add((cell[0] + 1, cell[1] + 1))
-    
+
     # Bottom-left corner
     if cell[0] > 0 and cell[1] < height:
         neighbors.add((cell[0] - 1, cell[1] + 1))
     # Top-Right corner
     if cell[0] < width and cell[1] > 0:
         neighbors.add((cell[0] + 1, cell[1] - 1))
-    
+
     return neighbors
 
 
-class Minesweeper():
+class Minesweeper:
     """
     Minesweeper game representation
     """
@@ -114,7 +115,7 @@ class Minesweeper():
         return self.mines_found == self.mines
 
 
-class Sentence():
+class Sentence:
     """
     Logical statement about a Minesweeper game
     A sentence consists of a set of board cells,
@@ -133,6 +134,9 @@ class Sentence():
 
     def __str__(self):
         return f"{self.cells} = {self.count}"
+
+    def __hash__(self):
+        return hash((str(self.cells), self.count))
 
     def known_mines(self):
         """
@@ -166,7 +170,7 @@ class Sentence():
             self.cells.remove(cell)
 
 
-class MinesweeperAI():
+class MinesweeperAI:
     """
     Minesweeper game player
     """
@@ -223,58 +227,116 @@ class MinesweeperAI():
 
         # Desn't make any sense to check the move in two times
         if cell in self.moves_made:
-            return 
+            return
         self.moves_made.add(cell)
         self.safes.add(cell)
 
+        # Sentence inferences
+        inferences: set[Sentence] = set()
         # Neighbor cells relative to current cell's pos
         neighbors = neighbor_cells(cell, self.width, self.height)
 
         s = Sentence(neighbors, count)
-        self.knowledge.append(s) 
+        self.knowledge.append(s)
 
-        # Basic inference based on count value
-        if count == 0:
-            for neighbor in neighbors:
-                for sentence in self.knowledge:
-                    sentence.make_safe(neighbor)
-        elif len(neighbors) == count:
-            for neighbor in neighbors:
-                for sentence in self.knowledge:
-                    sentence.make_mine(neighbor)
-        
-        # Draws extra inference based on other sentences
-        for sentence in self.knowledge:
-            # Commmon cells between sentences
-            ocurrences: set[tuple[int, int]] = set()
-            # Inferred knowledge
-            mines_subset: set[tuple[int, int]] = set()
+        # TODO: Expand basic inferences
 
-            # No possible inferences
-            if s.count == sentence.count:
-                continue
+        # Basic inference for all sentences based on ount
+        for sentence in copy.deepcopy(self.knowledge):
+            if len(sentence.cells) == sentence.count:
+                for s_cell in sentence.cells:
+                    self.mark_mine(s_cell)
+            elif sentence.count == 0:
+                for s_cell in sentence.cells:
+                    self.mark_safe(s_cell)
 
-            for cell in sentence.cells:     
-                if cell in s.cells:
-                    ocurrences.add(cell)
-           
-            # Calculates the mines subset
-            if s.count > sentence.count:
-                for inferred in s.cells:
-                    if inferred in ocurrences:
-                       pass 
-                    mines_subset.add(inferred)
-            elif s.count < sentence.count:
-                for inferred in sentence.cells:
-                    if inferred in ocurrences:
-                        pass
-                    mines_subset.add(inferred)
-            
-            inferred_sentence = Sentence(mines_subset, abs(s.count - sentence.count))
-            self.knowledge.append(inferred_sentence)
-            
+        # Make Safe and unsafe cells for all sentences
+        for sentence in copy.deepcopy(self.knowledge):
+            for mine in sentence.known_mines():
+                self.mark_mine(mine)
+            for safe in sentence.known_safes():
+                self.mark_safe(safe)
 
-        raise NotImplementedError
+        # Removes empty sentences
+        for sentence in copy.deepcopy(self.knowledge):
+            if not len(sentence.cells):
+                self.knowledge.remove(sentence)
+
+        # # Draws extra inference based on sentences relations
+        for some_sentence in self.knowledge:
+            for other_sentence in self.knowledge:
+                # Commmon cells between sentences
+                ocurrences: set[tuple[int, int]] = set()
+                # Suspicious cell subset
+                mines_subset: set[tuple[int, int]] = set()
+
+                # No possible inferences
+                if some_sentence.count == other_sentence.count:
+                    continue
+
+                # Finds ocurrences between the two sentences
+                for s_cell in some_sentence.cells:
+                    if s_cell in other_sentence.cells:
+                        ocurrences.add(cell)
+
+                # Calculates the mines subset
+                if some_sentence.count > other_sentence.count:
+                    for s_cell in some_sentence.cells:
+                        if s_cell in ocurrences:
+                            continue
+                        mines_subset.add(s_cell)
+                elif other_sentence.count > some_sentence.count:
+                    for s_cell in other_sentence.cells:
+                        if s_cell in ocurrences:
+                            continue
+                        mines_subset.add(s_cell)
+
+                # Creates inferred sentence from suspicious subset
+                inferred_sentence = Sentence(
+                    mines_subset, abs(some_sentence.count - other_sentence.count)
+                )
+                inferences.add(inferred_sentence)
+
+
+        # Draws extra inference based on sentences relations
+        # for sentence in self.knowledge:
+        #     # Commmon cells between sentences
+        #     ocurrences: set[tuple[int, int]] = set()
+        #     # Suspicious cell subset
+        #     mines_subset: set[tuple[int, int]] = set()
+
+        #     # No possible inferences
+        #     if s.count == sentence.count:
+        #         continue
+
+        #     # Finds ocurrences between the two sentences
+        #     for s_cell in sentence.cells:
+        #         if s_cell in s.cells:
+        #             ocurrences.add(cell)
+
+        #     # Calculates the mines subset
+        #     if sentence.count > s.count:
+        #         for s_cell in sentence.cells:
+        #             if s_cell in ocurrences:
+        #                 continue
+        #             mines_subset.add(s_cell)
+        #     elif s.count > sentence.count:
+        #         for s_cell in s.cells:
+        #             if s_cell in ocurrences:
+        #                 continue
+        #             mines_subset.add(s_cell)
+
+        #     # Creates inferred sentence from suspicious subset
+        #     inferred_sentence = Sentence(
+        #         mines_subset, abs(sentence.count - s.count)
+        #     )
+
+        #     inferences.add(inferred_sentence)
+
+        # Appends all infereces found
+        for inferred in inferences:
+            self.knowledge.append(inferred)
+
 
     def make_safe_move(self):
         """
@@ -285,7 +347,19 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        raise NotImplementedError
+
+        # If there are available safe moves, then pick one
+        if len(self.safes) > 0:
+            return copy.deepcopy(self.safes).pop()
+
+        # Otherwise take the less risky option
+        best_move = [8, None]
+        for sentence in self.knowledge:
+            if sentence.count >= best_move[0]:
+                continue
+            best_move[0] = sentence.count
+            best_move[1] = copy.deepcopy(sentence.cells).pop()
+        return best_move[1]
 
     def make_random_move(self):
         """
@@ -294,4 +368,18 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        raise NotImplementedError
+
+        available: list[tuple[int, int]] = list()
+        for i in range(self.width):
+            for j in range(self.height):
+                move = (i, j)
+                if move not in self.moves_made and move not in self.mines:
+                    available.append(move)
+
+        # No available and not mined cells are free
+        if len(available) == 0:
+            return None
+
+        # Random cell, may contain mine
+        random_move = available[random.randint(0, len(available) - 1)]
+        return random_move
