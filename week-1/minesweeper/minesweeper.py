@@ -5,30 +5,29 @@ import copy
 
 def neighbor_cells(cell: tuple[int, int], width: int, height: int):
     neighbors: set[tuple[int, int]] = set()
+    x, y = cell
 
-    # Wall boundaries
-    if cell[0] > 0:
-        neighbors.add((cell[0] - 1, cell[1]))
-    if cell[0] < width:
-        neighbors.add((cell[0] + 1, cell[1]))
-    if cell[1] > 0:
-        neighbors.add((cell[0], cell[1] - 1))
-    if cell[1] < height:
-        neighbors.add((cell[0], cell[1] + 1))
+    left = cell[0] - 1
+    right = cell[0] + 1
+    top = cell[1] - 1
+    bottom = cell[1] + 1
 
-    # Top-left corner
-    if cell[0] > 0 and cell[1] > 0:
-        neighbors.add((cell[0] - 1, cell[1] - 1))
-    # Bottom-right corner
-    if cell[0] < width and cell[1] < height:
-        neighbors.add((cell[0] + 1, cell[1] + 1))
-
-    # Bottom-left corner
-    if cell[0] > 0 and cell[1] < height:
-        neighbors.add((cell[0] - 1, cell[1] + 1))
-    # Top-Right corner
-    if cell[0] < width and cell[1] > 0:
-        neighbors.add((cell[0] + 1, cell[1] - 1))
+    if x > 0:
+        neighbors.add((left, y))
+        if y > 0:
+            neighbors.add((left, top))
+        if y < height - 1:
+            neighbors.add((left, bottom))
+    if x < width - 1:
+        neighbors.add((right, y))
+        if y > 0:
+            neighbors.add(((right, top)))
+        if y < height - 1:
+            neighbors.add((right, bottom))
+    if y > 0:
+        neighbors.add((x, top))
+    if y < height - 1:
+        neighbors.add((x, bottom))
 
     return neighbors
 
@@ -228,20 +227,23 @@ class MinesweeperAI:
         # Desn't make any sense to check the move in two times
         if cell in self.moves_made:
             return
+        
+        # Adds the move and makes the cell to be considerated as safe
         self.moves_made.add(cell)
-        self.safes.add(cell)
+        self.mark_safe(cell)
 
         # Sentence inferences
         inferences: set[Sentence] = set()
         # Neighbor cells relative to current cell's pos
         neighbors = neighbor_cells(cell, self.width, self.height)
 
+        # New sentence is added to knowledge
         s = Sentence(neighbors, count)
         self.knowledge.append(s)
 
-        # TODO: Expand basic inferences
-
-        # Basic inference for all sentences based on ount
+        # Basic inference for all sentences based on count
+        # If there is the case in which any of the sentences has no remaining possible mines (the value of count), then it means all associated cells within that sentence aren't mines.
+        # For other side, if the number of associated cells is equal to the number of mined cells in that sentence, all cell within must to be mines
         for sentence in copy.deepcopy(self.knowledge):
             if len(sentence.cells) == sentence.count:
                 for s_cell in sentence.cells:
@@ -251,6 +253,7 @@ class MinesweeperAI:
                     self.mark_safe(s_cell)
 
         # Make Safe and unsafe cells for all sentences
+        # For each safe cell of each sentence makes it safe for the rest of sentences. Same behaviour for mines as for safes.
         for sentence in copy.deepcopy(self.knowledge):
             for mine in sentence.known_mines():
                 self.mark_mine(mine)
@@ -258,11 +261,12 @@ class MinesweeperAI:
                 self.mark_safe(safe)
 
         # Removes empty sentences
+        # Above inferences may result on empty sentences, to them must be removed from knowledge
         for sentence in copy.deepcopy(self.knowledge):
             if not len(sentence.cells):
                 self.knowledge.remove(sentence)
 
-        # # Draws extra inference based on sentences relations
+        # Draws extra inference based on sentences relations
         for some_sentence in self.knowledge:
             for other_sentence in self.knowledge:
                 # Commmon cells between sentences
@@ -347,18 +351,25 @@ class MinesweeperAI:
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-
-        # If there are available safe moves, then pick one
-        if len(self.safes) > 0:
-            return copy.deepcopy(self.safes).pop()
-
-        # Otherwise take the less risky option
+          
         best_move = [8, None]
+
+        # If there are available safe moves, then pick one that weren't choosed before
+        safe_moves: tuple[tuple[int, int]] = tuple(move for move in self.safes if move not in self.moves_made) 
+        if len(safe_moves) > 0:
+            best_move[0] = 0
+            best_move[1] = safe_moves[random.randint(0, len(safe_moves) - 1)]
+            print("safe move ", end="")
+
+        # Otherwise take the less risky option -- which may result eventually result losing the game
         for sentence in self.knowledge:
             if sentence.count >= best_move[0]:
                 continue
             best_move[0] = sentence.count
             best_move[1] = copy.deepcopy(sentence.cells).pop()
+            print("maybe safe move ", end="")
+
+        print(best_move[1])
         return best_move[1]
 
     def make_random_move(self):
@@ -382,4 +393,5 @@ class MinesweeperAI:
 
         # Random cell, may contain mine
         random_move = available[random.randint(0, len(available) - 1)]
+        print("random movement", random_move)
         return random_move
