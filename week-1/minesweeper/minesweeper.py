@@ -3,35 +3,6 @@ import random
 import copy
 
 
-def neighbor_cells(cell: tuple[int, int], width: int, height: int):
-    neighbors: set[tuple[int, int]] = set()
-    x, y = cell
-
-    left = cell[0] - 1
-    right = cell[0] + 1
-    top = cell[1] - 1
-    bottom = cell[1] + 1
-
-    if x > 0:
-        neighbors.add((left, y))
-        if y > 0:
-            neighbors.add((left, top))
-        if y < height - 1:
-            neighbors.add((left, bottom))
-    if x < width - 1:
-        neighbors.add((right, y))
-        if y > 0:
-            neighbors.add(((right, top)))
-        if y < height - 1:
-            neighbors.add((right, bottom))
-    if y > 0:
-        neighbors.add((x, top))
-    if y < height - 1:
-        neighbors.add((x, bottom))
-
-    return neighbors
-
-
 class Minesweeper:
     """
     Minesweeper game representation
@@ -168,6 +139,35 @@ class Sentence:
             self._safes.add(cell)
             self.cells.remove(cell)
 
+    @classmethod
+    def neighbor_cells(cls, cell: tuple[int, int], width: int, height: int):
+        neighbors: set[tuple[int, int]] = set()
+        x, y = cell
+
+        left = cell[0] - 1
+        right = cell[0] + 1
+        top = cell[1] - 1
+        bottom = cell[1] + 1
+
+        if x > 0:
+            neighbors.add((left, y))
+            if y > 0:
+                neighbors.add((left, top))
+            if y < height - 1:
+                neighbors.add((left, bottom))
+        if x < width - 1:
+            neighbors.add((right, y))
+            if y > 0:
+                neighbors.add(((right, top)))
+            if y < height - 1:
+                neighbors.add((right, bottom))
+        if y > 0:
+            neighbors.add((x, top))
+        if y < height - 1:
+            neighbors.add((x, bottom))
+
+        return neighbors
+
 
 class MinesweeperAI:
     """
@@ -227,7 +227,7 @@ class MinesweeperAI:
         # Desn't make any sense to check the move in two times
         if cell in self.moves_made:
             return
-        
+
         # Adds the move and makes the cell to be considerated as safe
         self.moves_made.add(cell)
         self.mark_safe(cell)
@@ -235,7 +235,7 @@ class MinesweeperAI:
         # Sentence inferences
         inferences: set[Sentence] = set()
         # Neighbor cells relative to current cell's pos
-        neighbors = neighbor_cells(cell, self.width, self.height)
+        neighbors = Sentence.neighbor_cells(cell, self.width, self.height)
 
         # New sentence is added to knowledge
         s = Sentence(neighbors, count)
@@ -301,46 +301,9 @@ class MinesweeperAI:
                 )
                 inferences.add(inferred_sentence)
 
-
-        # Draws extra inference based on sentences relations
-        # for sentence in self.knowledge:
-        #     # Commmon cells between sentences
-        #     ocurrences: set[tuple[int, int]] = set()
-        #     # Suspicious cell subset
-        #     mines_subset: set[tuple[int, int]] = set()
-
-        #     # No possible inferences
-        #     if s.count == sentence.count:
-        #         continue
-
-        #     # Finds ocurrences between the two sentences
-        #     for s_cell in sentence.cells:
-        #         if s_cell in s.cells:
-        #             ocurrences.add(cell)
-
-        #     # Calculates the mines subset
-        #     if sentence.count > s.count:
-        #         for s_cell in sentence.cells:
-        #             if s_cell in ocurrences:
-        #                 continue
-        #             mines_subset.add(s_cell)
-        #     elif s.count > sentence.count:
-        #         for s_cell in s.cells:
-        #             if s_cell in ocurrences:
-        #                 continue
-        #             mines_subset.add(s_cell)
-
-        #     # Creates inferred sentence from suspicious subset
-        #     inferred_sentence = Sentence(
-        #         mines_subset, abs(sentence.count - s.count)
-        #     )
-
-        #     inferences.add(inferred_sentence)
-
         # Appends all infereces found
         for inferred in inferences:
             self.knowledge.append(inferred)
-
 
     def make_safe_move(self):
         """
@@ -351,11 +314,13 @@ class MinesweeperAI:
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-          
+
         best_move = [8, None]
 
         # If there are available safe moves, then pick one that weren't choosed before
-        safe_moves: tuple[tuple[int, int]] = tuple(move for move in self.safes if move not in self.moves_made) 
+        safe_moves: tuple[tuple[int, int]] = tuple(
+            move for move in self.safes if move not in self.moves_made
+        )
         if len(safe_moves) > 0:
             best_move[0] = 0
             best_move[1] = safe_moves[random.randint(0, len(safe_moves) - 1)]
