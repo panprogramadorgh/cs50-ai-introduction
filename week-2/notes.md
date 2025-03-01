@@ -33,3 +33,122 @@ Por el contrario la probabilidad condicional se fundamenta en evidencias ya reve
 > Cual es la probabilidad de A dado el valor de B ?
 
 ![conditional-probability](./imgs/conditional-probability-repr.png)
+
+Que es equivalente a la probabilidad de que ambos simbolso A y B sean verdaderos dividido de la probabilidad de que B sea verdadero:
+
+```math
+\frac{P(A\ Ʌ\ B)}{P(B)}
+```
+
+El valor para la probabilidad ( $[0, 1]$ ) esta directamente relacionado (por no decir que es lo mismo) al numero de universos posibles.
+
+Siguiendo este razonamiento y en relacion a
+$\frac{P(A\ Ʌ\ B)}{P(B)}$, podemos verlo como `universos posibles donde A y B` / `universos posibles donde B`. Dividimos entre $P(B)$ porque para sacar la probabilidad de $P(A\ Ʌ\ B)$ ha sido necesario calcular el producto de la probabilidad de ambos $P(A) * P(B)$; de esta manera sacamos a $P(B)$ de la ecuacion.
+
+> En el escenario de los dados, donde es igual de probable cada combinacion, el calculo de probabilidad condicional es $P(A\ |\ B)\ =\ P(A)$.
+
+![conditional-probability-example](./imgs/conditional-probability-example.png)
+
+> Cual es la probabilidad de que la suma de ambos dadots sea 12 sabiendo que el dado rojo es 6
+
+# Random Variable
+
+En teoria de probabilidad buscamos en ocasiones representar una idea con variables que pueden asurmir un valor determinado dentro de un dominio de posibilidades.
+
+> Espacio de valores posibles para la variable aleatoria `roll`.
+
+![random-variable-explanations](./imgs/random-variable-explanation.png)
+
+## Probability Distribution
+
+Amenudo representamos la distribucion de probabilidad sobre cada uno de los valores de la variable aletoria con un vector (matriz de valores)
+
+![probability-distribution-as-vector](./imgs/probability-distribution-as-vector.png)
+
+# Independence
+
+Consiste en la falta de relacion al momento de calcular la probabilidad de dos simbolos diferentes.
+
+El juego de los dos dados es un claro ejemplo de independencia en teoria de probabilidad y es que como cada jugada es aleatoria, no existe relacion alguna entre la tirada del primer y el segundo dado.
+
+Si estuvieramos discutiendo si esta o no lloviendo, esta probabilidad seria alterada (no independiente) del factor "el cielo esta nubloso".
+
+Si estamos topandonos con un caso de probabilidad independiente podemos simplificar la ecuacion de probabilidad conditional
+
+> Buscando probabilidad de `A` asumiendo que `B` es verdadero
+
+```math
+P(A\ |\ B) = \frac{P(A\ Ʌ\ B)}{P(B)}
+```
+
+De la siguiente manera
+
+```math
+P(A) = \frac{P(A\ Ʌ\ B)}{P(B)}
+```
+
+O lo que es igual
+
+```math
+P(A\ Ʌ\ B) = P(A)\ *\ P(B)
+```
+
+Volviendo al problema de los dados, podemos forzar un comportamiento no independiente si buscamos que un mismo dado tenga dos valores diferentes el mismo tiempo.
+
+> Al mostrar un comportamiento no independiente:
+
+```math
+P(Roll\ =\ 6\ Ʌ\ Roll\ =\ 1)\ !=\ P(A)\ *\ P(B)
+```
+
+```math
+0\ !=\ \frac{1}{6}\ *\ \frac{1}{6}
+```
+
+> De manera que para hacer el calculo de probabilidad condicional tenemos que tener en cuenta que tan probable es `B` si `A` es cierto.
+
+```math
+P(Roll\ =\ 6\ Ʌ\ Roll\ =\ 1)\ !=\ P(A)\ *\ P(B\ |\ A)
+```
+
+![probability-independence-concept](./imgs/probability-independence-concept.png)
+
+# Bayes' Rule
+
+Basandonos en lo anterior y haciendo algo de algebra podemos sacar la forma estandar del teorema de bayes.
+
+Si sabemos que
+
+```math
+P(A\ Ʌ\ B)\ =\ P(A)\ *\ P(B\ |\ A)
+```
+
+es lo mismo que
+
+```math
+P(A\ Ʌ\ B)\ =\ P(B)\ *\ P(A\ |\ B)
+```
+
+significa por lo tanto que
+
+```math
+P(B)\ *\ P(A\ |\ B) =\ P(A)\ *\ P(B\ |\ A)
+```
+
+y por consiguiente el teorema de bayes se representa comunmente con la forma:
+
+```math
+P(A\ |\ B)\ =\ \frac{P(B\ |\ A)\ *\ P(A)}{P(B)}
+```
+
+Aqui tenemos una aplicacion del teorema de bayes dada la siguiente informacion:
+
+- El 80% de las tardes lluviosas comenzaron con una mañana nublada.
+
+- El 40% de los dias tienen una mañana nublada.
+
+- El 10% de los dias tienen una tarde lluviosa
+
+![bayes-rule-example](./imgs/bayes-rule-example.png)
+
+> Hay un 20% de probabilidad de que llueva por la tarde si por la mañana hay nubes.
