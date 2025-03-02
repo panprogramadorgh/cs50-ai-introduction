@@ -152,3 +152,63 @@ Aqui tenemos una aplicacion del teorema de bayes dada la siguiente informacion:
 ![bayes-rule-example](./imgs/bayes-rule-example.png)
 
 > Hay un 20% de probabilidad de que llueva por la tarde si por la mañana hay nubes.
+
+# Joint Probability
+
+Consiste en un sistema de distribucion de probabilidad basado en la combinacion de varias random variables. Es empleado para calcular la probabilidad condicional.
+
+![joint-probability-distribution](./imgs/joint-probability-distribution.png)
+
+Amenudo utilizamos una forma de resentacion del teorema de bayes que se ve de la siguiente manera:
+
+```math
+ɑP(A, B)
+```
+
+Cuando buscamos $P(A\ |\ B)$, el coeficiente alpha ha de ser $\frac{1}{P(B)}$, de lo contrario alpha sera $\frac{1}{P(A)}$
+
+![bayes-rule-alpha-repr](./imgs/bayes-rule-alpha-repr.png)
+
+Con esto obtendremos **probabilidad condiconal absoluta** (si no asumimos como verdadero ningun evento, concluimos que hay un 0.02 de probabilidad de que llueva).
+
+Sin embargo podemos calcular esta misma probabilidad condicional con un **valor relativo** a unos eventos / hechos verdaderos.
+
+Esto simplemente lo logramos con el valor de alpha, el cual se convertira un **factor de formalizacion**. Para calcular cual es el valor indicado alpha (en ese caso en particular) tendremos que obtener la inversa de la probabilidad absoluta del evento lluvia $\frac{1}{0.1}$.
+
+Utilizando este factor formalizador obtendremos que el 80% de los dias de lluvia comenzaron con mañanas nublosas y por el contrario, el 20% de las mañanas nublosas terminan en tardes lluviosas.
+
+> De nuevo surge el concepto de sumacion de omega
+
+![likelihood-omega-sumation-concept](./imgs/likelihood-omega-sumation-concept.png)
+
+# Probability Rules
+
+## Negation Rule
+
+![negation-rule](./imgs/negation-rule.png)
+
+## Inclusion Exclusion Rule
+
+Si bien hemos estado calculando la probabilidad de A y B (sean o no independientes) con $ɑ(P(A)\ *\ P(B))$ utilicaremos la siguiente regla para obtener la probabilidad de A o B
+
+![inclusion-exclusion-rule](./imgs/inclusion-exclusion-rule.png)
+
+## Marginalization Rule
+
+Para el calculo de probabilidad de eventos booleanos, el teorema tiene la siguiente forma:
+
+![marginalization-rule](./imgs/marginalization-rule.png)
+
+Aunque tambien es aplicable en situaciones donde tratamos con random variables, en cuyo caso la ecuacion tendra la siguiente representacion:
+
+![marginalization-random-variables-rule](./imgs/marginalization-random-variables-rule.png)
+
+## Conditioning Rule
+
+El teorema de condicionamiento en el fondo es equivalente al de marginalizacion con la diferencia del factor de formalizacion.
+
+![conditioning-rule](./imgs/conditioning-rule.png)
+
+O para variables aleatorias
+
+![conditioning-random-variables-rule](./imgs/conditioning-random-variables-rule.png)
