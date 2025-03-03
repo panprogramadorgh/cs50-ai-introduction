@@ -212,3 +212,35 @@ El teorema de condicionamiento en el fondo es equivalente al de marginalizacion 
 O para variables aleatorias
 
 ![conditioning-random-variables-rule](./imgs/conditioning-random-variables-rule.png)
+
+# Bayesian Network
+
+Las redes de bayes son una estructura de datos que representa la relacion entre el valor de las variables aleatorias. Ejemplo: Si esta lloviendo el autobus se retrasara.
+
+- Las redes de bayes son representables como un grafico de direcciones
+
+- Cada nodo representa una variable aleatoria
+
+- Una flecha desde un nodo `X` apuntando a un nodo `Y` significa que `X` es el nodo padre de  ` Y`.
+
+- Cada nodo `X` almacena su distribucion de probabilidad asumiendo que el nodo padre es verdadero $P(X\ |\ Parents(X))$. Una forma intuitiva de ver esto consiste en pensar en la idea de que cada nodo va a desbloquear nuevas probabilidades de que suceda un evento determinado.
+
+![bayesian-network-example](./imgs/bayesian-network-example.png)
+
+El nodo padre, en este caso la variable aleatoria `rain` es totalmente independiente del resto. Su distribucion de probabilidada de es constante para todos los valores de la variable.
+
+Segun descendemos en la red de bayes se van generando dependencias entre nodos. Un nodo puede tener uno o varios nodos padre. Para calcular una tabla de distribucion de probabilidad condicional sobre un nodo con un solo padre, jugamos todas las combinaciones posibles de la variable aleatoria del unico nodo padre.
+
+![bayesian-network-joint-probability-distribution](./imgs/bayesian-network-conditional-probability-distribution.png)
+
+La otra opcion es que un nodo pertenezca a varios nodos padre, en cuyo caso para saber la probabilidad de cada valor de la variable aleatoria del nodo actual, sera necesario jugar todas las combinaciones de de valores de variables aleatorias de nodos padre.
+
+![bayesian-network-deep-conditional-probability](./imgs/bayesian-network-deep-conditional-probability-distribution.png)
+
+### Calculating multiple joint probability
+
+De acuerdo para calcular la probabilidad conjuntiva, es decir, aquella no relativa a la probabilidad del valor de la variable aleatoria del nodo padre, hemos de seguir un encadenamiento de probabilidades (producto).
+
+![joint-probability-across-multiple-variables](./imgs/joint-probability-across-multiple-variables.png)
+
+Tambien es posible obtener la probabilidad conjuntiva para los valores de la variable aleatoria del nodo actual por medio de la probabilidad condiconal. En la tabla de distribucion de probabilidad condicional tendremos que sumar todos los valores de cada columa correspondiente a los valores de la variable aleatoria de simbolo actual y multipliciar el resultado por el factor de normalizacion alpha.
