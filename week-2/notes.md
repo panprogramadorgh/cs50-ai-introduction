@@ -244,3 +244,24 @@ De acuerdo para calcular la probabilidad conjuntiva, es decir, aquella no relati
 ![joint-probability-across-multiple-variables](./imgs/joint-probability-across-multiple-variables.png)
 
 Tambien es posible obtener la probabilidad conjuntiva para los valores de la variable aleatoria del nodo actual por medio de la probabilidad condiconal. En la tabla de distribucion de probabilidad condicional tendremos que sumar todos los valores de cada columa correspondiente a los valores de la variable aleatoria de simbolo actual y multipliciar el resultado por el factor de normalizacion alpha.
+
+# Uncertenty inference
+
+- Consulta / Query X: Representa la variable aleatoria sobre la cual estamos calculando la distribucion de probabilidad.
+
+- Variables de evidencia E: Valores para variables aleatorias de que podemos asumir (probabilidad conditional).
+
+- Variables ocultas Y: Todas aquellas variables no conocidas (no son parte de las evidencias) ni son la variable de consulta X.
+
+El objetivo es calcular la probabilidad de X dadas las evidencias E $P(X\ |\ E)$
+
+
+## Inference by enumeration
+
+Para hacer el calculo de probabilidad debemos sumar todas las probabilidades para las variables aleatorias ocultas.
+
+![hidden-variables-sumation-example](./imgs/hidden-variables-sumation-example.png)
+
+Esta seria la ecuacion matematica detras de la idea de hacer el calculo de probabilidad de X basandonos en las evidencias y sumando las probabilidades para cada variable aleatoria oculta:
+
+![inference-by-enumeration](./imgs/inference-by-enumeration-formula.png)
