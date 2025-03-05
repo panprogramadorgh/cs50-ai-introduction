@@ -265,3 +265,39 @@ Para hacer el calculo de probabilidad debemos sumar todas las probabilidades par
 Esta seria la ecuacion matematica detras de la idea de hacer el calculo de probabilidad de X basandonos en las evidencias y sumando las probabilidades para cada variable aleatoria oculta:
 
 ![inference-by-enumeration](./imgs/inference-by-enumeration-formula.png)
+
+La inferencia por enumeracion no es particularmente eficiente. Si bien podriamos intentar optimizar este algoritmo evitando calcular multiples veces una probabilidad ya calculada con anterioridad, al final del dia, segun va creciendo la cantidad de variables aleatorias y los valores que estas pueden tomar, se convierte en una solucion inviable; se vuelve imposible calcular esta inferencia exacta.
+
+## Approximate Inference
+
+A diferencia de la inferencia por enumeracion, la inferencia aproximada hace una estimacion de probabilidad sobre cada uno de los valores de las variables aleatorias, conviertiendo lo un metodo menos preciso aunque mas efectivo en terminos de rendimiento.
+
+### Basic Sampling
+
+Consiste en tomar valores para las variables aleatorias (dadas las distribuciones de probabilidad) en multitud de ocasiones (cuantas mas combinaciones generadas mejor, incluso si estas se repiten) con el objetivo de verificar en cuantos escenarios sobre el total existen las evidencias dadas.
+
+> En este caso en particular buscamos calcular la probabilidad de que el tren llegue a tiempo. En este caso estamos hablando de 6 sobre 8 escenarios de posibilidades calculados.  
+
+![inference-by-sampling-example](./imgs/inference-by-sampling-example.png)
+
+Si buscaramos calcular probabilidad condicional tendriamos que agregar un paso intermedio donde descartamos todos los escenarios que no cumplen con las evidencias `E`. Sobre los escenarios resultantes hariamos el calculo de probabilidad para la query `X`.
+
+> Cual es la probabilidad de que llueva ligero si el tren llego a tiempo ?
+
+![inference-by-sampling-conditional-probability-example](./imgs/inference-by-sampling-conditional-probability-example.png)
+
+La principal desventaja de este mecanismo de estimacion de probabilidad es el desperdicio de tiempo de calculo en aquellos casos donde las evidencias `E` son excepcionales. La gran mayoria de los escenarios, donde las evidencias no se cumplen, seran generados para nada.
+
+### Likelihood Weighting
+
+Es un mecanismo de calculo de probabilidad aproximada por muestras (sampling) que busca solucionar el problema anteriormente mencionado; es decir, de acuerdo para calcular la aproximacion de la probabilidad, el algoritmo se centra en aquellos casos (muestras) donde es mas probable que las evidencias `E` sean ciertas. Ademas, para reducir el numero de muestras generadas, fija los valores de las variables aleatorias correspondientes a las evidencias (pues es informacion ya conocida).
+
+Conceptualmente el procedimiento se veria de la siguiente manera:
+
+- Se fijan valores para las variables aleatorias correspondientes a las evidencias `E`.
+
+- Se generan las muestras para todas las variables aleatorias ocultas utilizando la probabilidad condicional de la red de bayes.
+
+- Cada una de las muestras se pondera con un peso correspondiente a la probabilidad de las evidencias por esa muestra.
+
+![likelihood-weighting-sample-probability-example](./imgs/likelihood-weighting-sample-probability-example.png)
