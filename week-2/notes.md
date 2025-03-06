@@ -300,4 +300,20 @@ Conceptualmente el procedimiento se veria de la siguiente manera:
 
 - Cada una de las muestras se pondera con un peso correspondiente a la probabilidad de las evidencias por esa muestra.
 
+> Se asigna un peso de 0.6
+
 ![likelihood-weighting-sample-probability-example](./imgs/likelihood-weighting-sample-probability-example.png)
+
+Si bien un modelo con Likelihood Weighting Sampling puede funcionar bastante bien observando y calculando una estimacion de los valores de las distribuciones de probabilidad; existe un factor que no se esta teniendo en cuenta, los cambios en las probabilidades a lo largo del tiempo.
+
+# Uncertenty over Time
+
+Hay existir una dimension temporal, la distribucion de probabilidad para las variables aleatorias cambiara para cada marca de tiempo.
+
+Esto puede en cierta medida derivar en un problema cuando tratamos con un monton de marcas de tiempo y variables aleatorias, la enorme cantidad de datos se vuelve insostenible.
+
+Es por ese motivo que nos va a interesar generar ciertas suposiciones, que en ocasiones no van a ser del todo correctas, pero que a la larga nos van a resultar utiles en terminos de rendimiento.
+
+## Markov Assumption
+
+Supone los valores para las distribuciones de probabilidad basandose en una cantidad finita de marcas de tiempo. De esta manera, si queremos calcular la distribucion de probabilidad (condicional o no) para el evento "lluvia", no nos basamos en las distribuciones de probabilidad para el evento lluvia a lo largo de todos los dias de la historia, en su lugar, simplemente nos basamos en el dia anterior o los dias anteriores.
