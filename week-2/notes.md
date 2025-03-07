@@ -317,3 +317,9 @@ Es por ese motivo que nos va a interesar generar ciertas suposiciones, que en oc
 ## Markov Assumption
 
 Supone los valores para las distribuciones de probabilidad basandose en una cantidad finita de marcas de tiempo. De esta manera, si queremos calcular la distribucion de probabilidad (condicional o no) para el evento "lluvia", no nos basamos en las distribuciones de probabilidad para el evento lluvia a lo largo de todos los dias de la historia, en su lugar, simplemente nos basamos en el dia anterior o los dias anteriores.
+
+## Markov Chain
+
+Cadena de variables aleatorias cuyos valores son determinados por `markov assumption`.
+
+![markov-chain-distribution](./imgs/markov-chain-distribution.png)
