@@ -331,3 +331,7 @@ Cadena de variables aleatorias cuya distribucion de probabilidad es calculada co
 > Ejemplo basico de un modelo de transicion que toma una variable aleatoria para el clima (llueve o hace sol) y calcula la probabilidad aproximada tomando como referencia unicamente el estado de la marca de tiempo anterior (el dia anterior)
 
 ![transition-model](./imgs/transition-model.png)
+
+## Hidden Markov Model
+
+En el ejemplo anterior de la lluvia existia cerceza sobre $X_{t}$, es decir sabiamos con un 100% de probabilidad que hoy era soleado y al dia siguiente habia lluvia en un 20%. Esto lo convierte en un calculo teorico, pues no siempre tenemos certeza de que hoy este lloviendo. Tal vez nuestro modelo es incorporado en una especie de robot con sensores integrados, lo que significa que la informacion observable por los sensores representa del estado oculto (lluvia o soleado). El sensor por si solo no tiene capacidad de dar un resultado certero (por lo general).
