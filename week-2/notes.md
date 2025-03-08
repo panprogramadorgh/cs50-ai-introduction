@@ -316,10 +316,18 @@ Es por ese motivo que nos va a interesar generar ciertas suposiciones, que en oc
 
 ## Markov Assumption
 
-Supone los valores para las distribuciones de probabilidad basandose en una cantidad finita de marcas de tiempo. De esta manera, si queremos calcular la distribucion de probabilidad (condicional o no) para el evento "lluvia", no nos basamos en las distribuciones de probabilidad para el evento lluvia a lo largo de todos los dias de la historia, en su lugar, simplemente nos basamos en el dia anterior o los dias anteriores.
+Supone el estado actual de una variable aleatoria basandose en una cantidad finita de estados previos. De esta manera, para calcular la distribucion de probabilidad para para un evento, no nos basamos en absolutamente todos los estados de la variable aleatoria a lo largo de la historia, en su lugar, simplemente observamos pocos dias anteriores.
 
 ## Markov Chain
 
-Cadena de variables aleatorias cuyos valores son determinados por `markov assumption`.
+Cadena de variables aleatorias cuya distribucion de probabilidad es calculada con `markov assumption`.
 
-![markov-chain-distribution](./imgs/markov-chain-distribution.png)
+![markov-chain](./imgs/markov-chain.png)
+
+## Transition Model
+
+`markov assumption` utiliza un modelo de transicion con probabilidades fijadas para cuando ciertos eventos han sido complidos en marcas de tiempo anteriores.
+
+> Ejemplo basico de un modelo de transicion que toma una variable aleatoria para el clima (llueve o hace sol) y calcula la probabilidad aproximada tomando como referencia unicamente el estado de la marca de tiempo anterior (el dia anterior)
+
+![transition-model](./imgs/transition-model.png)
