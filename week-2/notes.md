@@ -221,7 +221,7 @@ Las redes de bayes son una estructura de datos que representa la relacion entre 
 
 - Cada nodo representa una variable aleatoria
 
-- Una flecha desde un nodo `X` apuntando a un nodo `Y` significa que `X` es el nodo padre de  ` Y`.
+- Una flecha desde un nodo `X` apuntando a un nodo `Y` significa que `X` es el nodo padre de ` Y`.
 
 - Cada nodo `X` almacena su distribucion de probabilidad asumiendo que el nodo padre es verdadero $P(X\ |\ Parents(X))$. Una forma intuitiva de ver esto consiste en pensar en la idea de que cada nodo va a desbloquear nuevas probabilidades de que suceda un evento determinado.
 
@@ -255,7 +255,6 @@ Tambien es posible obtener la probabilidad conjuntiva para los valores de la var
 
 El objetivo es calcular la probabilidad de X dadas las evidencias E $P(X\ |\ E)$
 
-
 ## Inference by enumeration
 
 Para hacer el calculo de probabilidad debemos sumar todas las probabilidades para las variables aleatorias ocultas.
@@ -276,7 +275,7 @@ A diferencia de la inferencia por enumeracion, la inferencia aproximada hace una
 
 Consiste en tomar valores para las variables aleatorias (dadas las distribuciones de probabilidad) en multitud de ocasiones (cuantas mas combinaciones generadas mejor, incluso si estas se repiten) con el objetivo de verificar en cuantos escenarios sobre el total existen las evidencias dadas.
 
-> En este caso en particular buscamos calcular la probabilidad de que el tren llegue a tiempo. En este caso estamos hablando de 6 sobre 8 escenarios de posibilidades calculados.  
+> En este caso en particular buscamos calcular la probabilidad de que el tren llegue a tiempo. En este caso estamos hablando de 6 sobre 8 escenarios de posibilidades calculados.
 
 ![inference-by-sampling-example](./imgs/inference-by-sampling-example.png)
 
@@ -334,4 +333,26 @@ Cadena de variables aleatorias cuya distribucion de probabilidad es calculada co
 
 ## Hidden Markov Model
 
-En el ejemplo anterior de la lluvia existia cerceza sobre $X_{t}$, es decir sabiamos con un 100% de probabilidad que hoy era soleado y al dia siguiente habia lluvia en un 20%. Esto lo convierte en un calculo teorico, pues no siempre tenemos certeza de que hoy este lloviendo. Tal vez nuestro modelo es incorporado en una especie de robot con sensores integrados, lo que significa que la informacion observable por los sensores representa del estado oculto (lluvia o soleado). El sensor por si solo no tiene capacidad de dar un resultado certero (por lo general).
+En el ejemplo anterior de la lluvia existia cerceza sobre $X_{t}$, es decir sabiamos con un 100% de probabilidad que hoy era soleado y al dia siguiente habia lluvia en un 20%. Esto lo convierte en un calculo teorico, pues no siempre tenemos certeza de que hoy este lloviendo.
+
+Un modelo de markov oculto por lo tanto es aquel modelo markov donde existe incertidumbre sobre los estados de las variables aleatorias.
+
+Un buen ejemplo seria el de un robot con sensores integrados, la informacion observable por los sensores ayuda a inferir el estado oculto (lluvia o soleado siguiendo con el otro ejemplo). El sensor por si solo no tiene capacidad de dar un resultado certero (por lo general). En cualquier caso el estado oculto siempre va a condicionar la informacion observable.
+
+![sensor-markov-chain](./imgs/sensor-markov-chain.png)
+
+### Sensor Model
+
+Es un tipo de hidden markov model empleado en el calculo de probabilidades entre estados y observaciones. En ocasiones tambien es llamado `the emission probabilities` (pues el esatdo oculto emite un evento y en consecuencia tenemos observaciones).
+
+> Para simplificar, en este ejemplo estamos enfrentando dos variables aleatorias (los eventos y las observaciones) en una misma marca de tiempo.
+
+![sensor-model](./imgs/sensor-model.png)
+
+#### Sensor Markov Assumption
+
+`sensor model` (o al menos el del ejemplo) se fundamenta sobre `sensor markov assumption`; es decir, los valores para las observaciones son solamente dependientes del estado oculto.
+
+En un `sensor model` basado en `sensor markov assumption` podemos realizar una seria de tareas:
+
+- **filtering**: Dadas las observaciones desde el principio hasta la actualidad, calcular la distribucion de probabilidad para el estado actual 
