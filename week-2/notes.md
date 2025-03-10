@@ -343,7 +343,7 @@ Un buen ejemplo seria el de un robot con sensores integrados, la informacion obs
 
 ### Sensor Model
 
-Es un tipo de hidden markov model empleado en el calculo de probabilidades entre estados y observaciones. En ocasiones tambien es llamado `the emission probabilities` (pues el esatdo oculto emite un evento y en consecuencia tenemos observaciones).
+Empleado como parte de un hidden markov model permite el calculo de probabilidades entre estados y observaciones. En ocasiones tambien es llamado `the emission probabilities` (pues el esatdo oculto emite un evento y en consecuencia tenemos observaciones).
 
 > Para simplificar, en este ejemplo estamos enfrentando dos variables aleatorias (los eventos y las observaciones) en una misma marca de tiempo.
 
@@ -355,4 +355,10 @@ Es un tipo de hidden markov model empleado en el calculo de probabilidades entre
 
 En un `sensor model` basado en `sensor markov assumption` podemos realizar una seria de tareas:
 
-- **filtering**: Dadas las observaciones desde el principio hasta la actualidad, calcular la distribucion de probabilidad para el estado actual 
+- **filtering**: Dadas las observaciones desde el principio hasta la actualidad, calcular la distribucion de probabilidad para el estado actual.
+
+- **prediction**: Dadas las observaciones desde el principio hasta la actualidad, calcular la distribucion de probabilidad para un estado futuro.
+
+- **smoothing**: Dadas las observaciones desde el principio hasta la actualidad, calcular la distribucion de probabilidad para un estado pasado.
+
+- **most likely explanation**: Dadas las observaciones desde el principio hasta la actualidad, calcular la secuencia de estados mas probable
