@@ -67,8 +67,11 @@ def transition_model(corpus: dict[str, set], page: str, damping_factor: float):
             page_is_linked = True
             break
 
-    # If the page is not linked or damping factor is over the threshold then a return a random page from the entire corpus
-    if random.random() > damping_factor or not page_is_linked:
+    # Return a random page from the entire corpus if:
+    #   - `damping_factor` probability matches
+    #   - The page is isolated from other pages
+    #   - The page does not have any links to other pages
+    if random.random() > damping_factor or not page_is_linked or not len(corpus[page]):
         return corpus_key(corpus, random.randint(0, len(corpus) - 1))
 
     # We return a random page linked from the current page
