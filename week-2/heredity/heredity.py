@@ -142,6 +142,7 @@ def factorizer(iter: typing.Iterable[float]):
     factor = 1
     for n in iter:
         factor *= n
+    return factor
 
 
 def all_sizes_combinations(iter: typing.Iterable[float], r: int):
@@ -193,6 +194,42 @@ def gene_probability(people: dict[str, dict[str, str]], person: str, gene_number
     ) 
 
 
+def joint_gene_probability(people: dict[str, dict[str, str]], people_set: set[str], gene_number: int) -> float:
+    """Calculates joint gene probability over multiple people specified in `people_set`."""
+
+    probability_factor = 1
+    for person in people_set:
+        probability_factor *= gene_probability(people, person, gene_number)
+    return probability_factor
+
+
+def trait_probability(people: dict[str, dict[str, str]], person: str):
+    """Calculates probability for a person to have the trait given `people` dictionary"""
+
+    trait_chances = [] 
+    for gene_number in tuple(PROBS["gene"].keys()):
+        gene_number_prob = gene_probability(people, person, gene_number)
+        trait_prob = PROBS["trait"][gene_number][True] 
+        
+        # We append each trait probability based on the number of mutated genes
+        trait_chances.append(gene_number_prob * trait_prob ) 
+        
+    # All trait chances subsets (all sizes)
+    trait_chances_combinations = all_sizes_combinations(trait_chances, len(PROBS["gene"])) 
+
+    # P(A) + P(B) - P(A, B)
+    return sum(trait_chances) - sum([factorizer(comb) for comb in trait_chances_combinations])
+
+
+def joint_trait_probability(people: dict[str, dict[str, str]], people_set: set[str]):
+    """"""
+
+    probability_factor = 1
+    for person in tuple(people_set):
+        probability_factor *= trait_probability(people, person)
+    return probability_factor
+
+
 def joint_probability(people: dict[str, dict[str, str]], one_gene: set[str], two_genes: set[str], have_trait: set[str]):
     """
     Compute and return the joint probability.
@@ -214,33 +251,19 @@ def joint_probability(people: dict[str, dict[str, str]], one_gene: set[str], two
         float: The joint probability.
     """
 
-    probability = {
-        "gene": {
-           gene_number: 1 
-           for gene_number in tuple(PROBS["gene"].keys())
-        },
-        "trait": 1
-    }
+     # Set of all people without the mutated gen
+    no_gene = set(people.keys()) - one_gene - two_genes
+    have_no_trait = set(people.keys()) - have_trait
 
-    for person in tuple(have_trait):
-        trait_chances = [] 
-        for gene_number in tuple(PROBS["gene"].keys()):
-            gene_number_prob = gene_probability(people, person, gene_number)
-            trait_prob = PROBS["trait"][gene_number][True] 
+    joint = (
+        joint_gene_probability(people, no_gene, 0),
+        joint_gene_probability(people, one_gene, 1),
+        joint_gene_probability(people, two_genes, 2),
+        joint_trait_probability(people, have_trait),
+        joint_trait_probability(people, have_no_trait)
+    )
 
-            # For each iteration we calculate the joint probability
-            probability["gene"][gene_number] *= gene_number_prob
-            
-            # We append each trait probability based on the number of mutated genes
-            trait_chances.append(gene_number_prob * trait_prob ) 
-         
-        # All trait chances subsets (all sizes)
-        trait_chances_combinations = all_sizes_combinations(trait_chances, len(PROBS["gene"])) 
-
-        # P(A) + P(B) - P(A, B)
-        probability["trait"] *= sum(trait_chances) - sum([factorizer(comb) for comb in trait_chances_combinations])
-
-    return factorizer(tuple(probability["gene"])) * probability["trait"]
+    return factorizer(joint)
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
     """
@@ -249,6 +272,9 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
+
+    print(probabilities, p)    
+
     raise NotImplementedError
 
 
