@@ -135,17 +135,21 @@ def powerset(s):
     ]
 
 
-def factorizer(iter: typing.Iterable[int | float]):
+def factorizer(iter: typing.Iterable[float]):
     """
     Multiplication function -- equivalent to sum built in function 
     """
-
-    factor = 0
+    factor = 1
     for n in iter:
-        if factor == 0:
-            factor = n
-        else:
-            factor *= n
+        factor *= n
+
+
+def all_sizes_combinations(iter: typing.Iterable[float], r: int):
+    iter = list(iter)
+    combs = []
+    for r in range(len(iter)):
+        combs.extend(itertools.combinations(iter, r + 2))
+    return combs
 
 
 def gene_probability(people: dict[str, dict[str, str]], person: str, gene_number: int) -> float:
@@ -210,54 +214,33 @@ def joint_probability(people: dict[str, dict[str, str]], one_gene: set[str], two
         float: The joint probability.
     """
 
-    # Calculando probabilidad de que las personas indicadas tengan los genes indicados
-    # TODO: Aprovechar calculo de probabilidad para personas con hearing inpairment y de paso calcular probabilidad para numero de genes mutados
-
-    # # Calculating the joint probability for all one_gene people to have one mutated genes (coming from their parents)
-    # one_gene_probability = 1
-    # for person in one_gene:
-    #     each_probability = gene_probability(people, person, 1)
-    #     if one_gene_probability == 1:
-    #         one_gene_probability = each_probability
-    #     else:
-    #         one_gene_probability *= each_probability
-    
-    # # Calculating the joint probability for all two_gene people to have two mutated genes (coming from their parents)
-    # two_gene_probability = 1
-    # for person in two_genes:
-    #     each_probability = gene_probability(people, person, 2)
-    #     if two_gene_probability == 1:
-    #         two_gene_probability = each_probability
-    #     else:
-    #        two_gene_probability *= each_probability 
-    
-    # Contains gene probability distribution for each user
-
-    gene_distributions = []
+    probability = {
+        "gene": {
+           gene_number: 1 
+           for gene_number in tuple(PROBS["gene"].keys())
+        },
+        "trait": 1
+    }
 
     for person in tuple(have_trait):
-        each_distribution = {}
-        for gene_number in tuple(HEREDITY.keys()):
-            each_probability = gene_probability(people, person, gene_number)
-            each_distribution[gene_number] = each_probability
-        gene_distributions.append(each_distribution)
-    
-    joint_trait_probability = 1
-    for each_distribution in gene_distributions:
-        trait_chances = set()
-        for gene_number in tuple(HEREDITY.keys()):
-            # P(gene_number) * P(impairment)
-            each_probability = each_distribution[gene_number] * PROBS["trait"][gene_number][True]
-            trait_chances.add(each_probability)
+        trait_chances = [] 
+        for gene_number in tuple(PROBS["gene"].keys()):
+            gene_number_prob = gene_probability(people, person, gene_number)
+            trait_prob = PROBS["trait"][gene_number][True] 
 
-        # TODO: Pendient to finish ...
+            # For each iteration we calculate the joint probability
+            probability["gene"][gene_number] *= gene_number_prob
+            
+            # We append each trait probability based on the number of mutated genes
+            trait_chances.append(gene_number_prob * trait_prob ) 
+         
+        # All trait chances subsets (all sizes)
+        trait_chances_combinations = all_sizes_combinations(trait_chances, len(PROBS["gene"])) 
 
-        # Suma de las probabilidades - Probabilidad evento no contemplado por or exclusivo
-        # sum(trait_chances) - ...
-        
-    
-    raise NotImplementedError
+        # P(A) + P(B) - P(A, B)
+        probability["trait"] *= sum(trait_chances) - sum([factorizer(comb) for comb in trait_chances_combinations])
 
+    return factorizer(tuple(probability["gene"])) * probability["trait"]
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
     """
