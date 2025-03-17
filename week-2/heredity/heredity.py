@@ -215,7 +215,7 @@ def joint_gene(
     return probability_factor
 
 
-def trait(people: dict[str, dict[str, str]], person: str):
+def trait(people: dict[str, dict[str, str]], person: str, no_trait = False):
     """Calculates probability for a person to have the trait given `people` dictionary"""
     # Gene probability distribution for person
     # tuple[float, float, float]
@@ -224,9 +224,9 @@ def trait(people: dict[str, dict[str, str]], person: str):
 
     # Trait chances (based of gene number)
     trait_chances = (
-        dist[0] * PROBS["trait"][0][True],
-        dist[1] * PROBS["trait"][1][True],
-        dist[2] * PROBS["trait"][2][True],
+        dist[0] * PROBS["trait"][0][not no_trait],
+        dist[1] * PROBS["trait"][1][not no_trait],
+        dist[2] * PROBS["trait"][2][not no_trait],
     )
 
     # All trait chances subsets (all sizes)
@@ -254,10 +254,8 @@ def joint_trait(
 
     probability_factor = 1
     for person in tuple(people_set):
-        if no_trait:
-            probability_factor *= 1 - trait(people, person)
-        else:  
-            probability_factor *= trait(people, person)
+        probability_factor *= trait(people, person, no_trait=no_trait)
+
     return probability_factor
 
 
