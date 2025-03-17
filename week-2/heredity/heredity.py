@@ -27,7 +27,6 @@ HEREDITY = {
 
 
 def main():
-
     # Check for proper usage
     if len(sys.argv) != 2:
         sys.exit("Usage: python heredity.py data.csv")
@@ -156,9 +155,9 @@ def pass_gene(distribution: tuple[float, float, float]) -> float:
         distribution[2] * HEREDITY[2],
     )
 
-    combinations = all_sizes_combinations(chances_to_pass, 3)
+    combinations = tuple(tuple(comb) for comb in powerset(chances_to_pass) if len(comb) > 1)
 
-    return sum(chances_to_pass) - sum([factorizer(comb) for comb in combinations])
+    return sum(chances_to_pass) - sum(tuple(factorizer(comb) for comb in combinations))
 
 
 def gene_dist(
@@ -231,10 +230,10 @@ def trait(people: dict[str, dict[str, str]], person: str):
     )
 
     # All trait chances subsets (all sizes)
-    combinations = all_sizes_combinations(trait_chances, len(PROBS["gene"]))
+    combinations = tuple(tuple(comb) for comb in powerset(trait_chances) if len(comb) > 1)
 
     # P(A) + P(B) - P(A, B)
-    return sum(trait_chances) - sum([factorizer(comb) for comb in combinations])
+    return sum(trait_chances) - sum(tuple(factorizer(comb) for comb in combinations))
 
 
 def joint_trait(
@@ -255,9 +254,10 @@ def joint_trait(
 
     probability_factor = 1
     for person in tuple(people_set):
-        probability_factor *= int(no_trait) + (
-            -1 if no_trait else 1 * trait(people, person)
-        )
+        if no_trait:
+            probability_factor *= 1 - trait(people, person)
+        else:  
+            probability_factor *= trait(people, person)
     return probability_factor
 
 
