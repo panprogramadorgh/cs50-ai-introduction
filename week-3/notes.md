@@ -55,3 +55,43 @@ Una problema que tiene la version estandar de hill climbing es el riesgo a topar
 ![local-maxima-example](./imgs/local-maxima-example.png)
 
 Esta version de hill climbing es conocida como `steepest-ascent`, no obstante existen variaciones.
+
+- **Stochastic variant**: Elige un vecino con valoracion superior a la actual aleatoriamente.
+
+- **first-choice variant**: Elige el primer vecino con mejor valoracion
+
+- **random-restart**: Consiste en repetir uno de los anteriores multiples veces con el objetivo de conseguir valores mas precisos.
+
+- **local beam search**: Consiste en elegir varios mejores valores, en lugar de limitarse unicamente a uno.
+
+Todos estos algoritmos se basan en la premisa de que nunca van a elegir un estado peor que el actual, sin embargo en ocasiones para llegar a la mejor solucion es necesario sobrepasar uno o varios malos estados.
+
+# Simulated Annealing
+
+Se fundamenta en la varianza a lo largo del tiempo de un parametro que controla que tal tolerante a estados peores es el algoritmo. A medida que madura la busqueda, el algoritmo se hace menos tolerante a estados peores.
+
+![simulated-annealing-pseudocode](imgs/simulated-annealing-pseudocode.png)
+
+- Se establece el estado actual
+
+- Itera un maximo de veces y por cada iteracion obtiene la "temperatura" actual
+
+- Elige entre todos los vecinos uno cualquiera al azar
+
+- Calcula que tan bueno / malo es el vecino de forma relativa al estado actual
+
+- Si estado elegido aleatoriamente es mejor que el estado actual, el estado actual pasa a ser aquel elegido aleatoriamente; por el contrario,
+
+- Si el estado elegido aleatoriamente es peor que el estado actual, el estado actual es el estado elegido aleatoriamente aunque con probabilidad $e^{ΔE/T}$, donde $ΔE$ es que tan mejor / peor es el estado elegido con respecto al actual y T la temperatura actual. A mas temperatura, menos tolerancia a elegir estados peores que el actual. 
+
+# Traveling Salesman Problem
+
+Es un famoso problema en computer scince que consiste en encontrar la forma de atravesar todos los nodos siguiendo el camino mas corto posible.
+
+![travelling-salesman-problem](./imgs/travelling-salesman-problem-1.png)
+
+Resolver el problema es bastante costoso computacionalmente hablando, de hecho es un problema categorizado como "NP-complete problems" puesto que no existe una solucion optima al problema. Al no existir una solucion optima al problema, lo maximo que podemos hacer es encontrar aproximaciones lo mas baratas posibles en terminos de computacion.
+
+`Local search` puede ser empleado para llegar a una conclusion aproximada. Lo primero en lo que realmente tenemos que pensar es en el concepto de estado vecino para este problema en particular. Un estado vecino podria ser un cambio de direccion de nodo a nodo. Tambien deberiamos codificar un mecanismo de medicion para el costo de cada uno de los estados -- aunque esto ultimo se alinea con la misma naturaleza de local searching.
+
+![travelling-salesman-problem](./imgs/travelling-salesman-problem.png)
