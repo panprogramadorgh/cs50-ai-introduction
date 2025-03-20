@@ -88,10 +88,18 @@ Se fundamenta en la varianza a lo largo del tiempo de un parametro que controla 
 
 Es un famoso problema en computer scince que consiste en encontrar la forma de atravesar todos los nodos siguiendo el camino mas corto posible.
 
-![travelling-salesman-problem](./imgs/travelling-salesman-problem-1.png)
+![travelling-salesman-problem](./imgs/travelling-salesman-problem.png)
 
 Resolver el problema es bastante costoso computacionalmente hablando, de hecho es un problema categorizado como "NP-complete problems" puesto que no existe una solucion optima al problema. Al no existir una solucion optima al problema, lo maximo que podemos hacer es encontrar aproximaciones lo mas baratas posibles en terminos de computacion.
 
 `Local search` puede ser empleado para llegar a una conclusion aproximada. Lo primero en lo que realmente tenemos que pensar es en el concepto de estado vecino para este problema en particular. Un estado vecino podria ser un cambio de direccion de nodo a nodo. Tambien deberiamos codificar un mecanismo de medicion para el costo de cada uno de los estados -- aunque esto ultimo se alinea con la misma naturaleza de local searching.
 
-![travelling-salesman-problem](./imgs/travelling-salesman-problem.png)
+![travelling-salesman-neighbor-state-example](./imgs/travelling-salesman-neighbor-state-example.png)
+
+# Linear Programming 
+
+Consiste en una categoria de problemas donde buscamos reducir funciones matematicas tal y como si estuvieramos resolviendo una incognita en algebra lineal. Nos encontraremos con `linear programming` en escenarios con numeros reales, en lugar de valores discretos.
+
+De acuerdo para resolver las incognitas, estableceremos restricciones lineales.
+
+![linear-programming-problem-category](./imgs/linear-programming-problem-category.png)
