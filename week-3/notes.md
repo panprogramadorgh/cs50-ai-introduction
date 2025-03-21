@@ -98,8 +98,73 @@ Resolver el problema es bastante costoso computacionalmente hablando, de hecho e
 
 # Linear Programming 
 
-Consiste en una categoria de problemas donde buscamos reducir funciones matematicas tal y como si estuvieramos resolviendo una incognita en algebra lineal. Nos encontraremos con `linear programming` en escenarios con numeros reales, en lugar de valores discretos.
+Consiste en una categoria de problemas donde buscamos reducir o maximizar el valor generado por una funcion matematica, tal y como si estuvieramos resolviendo incognitas en algebra lineal. Nos encontraremos con `linear programming` en escenarios con numeros reales, en lugar de valores discretos.
 
 De acuerdo para resolver las incognitas, estableceremos restricciones lineales.
 
 ![linear-programming-problem-category](./imgs/linear-programming-problem-category.png)
+
+Tomemos como ejemplo el siguiente problema donde buscamos minimizar costos y maximizar la produccion.
+
+![linear-programming-problem-example](imgs/linear-programming-problem-example.png)
+
+En terminos matematicos podriamos representar esta funcion y dos restricciones de la siguiente forma (recordemos que $x_1$ corresponde al numero de horas para la primera maquina mientras que $x_2$ a la segunda)
+
+**Cost Function**
+
+La primera maquina cuesta USD 50$ de la USA por hora, mientras que la segunda USD 80$.
+
+$50x_1 + 80x_2$
+
+> Funcion de coste (en este caso estamos buscando minimizar el costo de tener ambas maquinas)
+
+---
+
+**Constraints**
+
+De acuerdo para administrar el tiempo de uso de cada maquina, cada maquina tiene asignada una constante para el numero de unidades de labor que esta gasta por hora. En este caso en particular:
+
+- La primera maquina gasta 5 unidade de trabajo por hora, mientras que
+
+- La segunda solo 2.
+
+No tiene sentido establecer una cantidad de unidades de trabajo en una hora por maquina si no hay un limite de unidades de trabajo que podemos consumir. En este caso el limite de unidades de trabajo son 20.
+
+$5x_1 + 5x_2 <= 20$
+
+Otra restriccion aplicable a este ejemplo consiste en la produccion que la compañia necesita. Cada maquina va a tener un numero determinado de unidades que esta puede fabricar en una hora.
+
+Para este ejemplo digamos que:
+
+- La primera maquina produce 10 unidades de un producto en una hora, mientras que
+
+- La segunda genera 12, y;
+
+- La compañia demanda 90 unidades
+
+Matematicamente representable tal que
+
+$10x_1 + 12x_2 >= 90$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
