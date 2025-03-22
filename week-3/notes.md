@@ -98,9 +98,9 @@ Resolver el problema es bastante costoso computacionalmente hablando, de hecho e
 
 # Linear Programming 
 
-Consiste en una categoria de problemas donde buscamos reducir o maximizar el valor generado por una funcion matematica, tal y como si estuvieramos resolviendo incognitas en algebra lineal. Nos encontraremos con `linear programming` en escenarios con numeros reales, en lugar de valores discretos.
+Consiste en una categoria de problemas donde buscamos optimizar una funcion matematica de coste / objetivo; tal y como si estuvieramos resolviendo incognitas en algebra lineal, en este tipo de problemas nos interesa encontrar los mejores valores de sustitucion para la funcion matematica. Nos encontraremos con `linear programming` en escenarios donde se usan numeros reales, en lugar de valores discretos.
 
-De acuerdo para resolver las incognitas, estableceremos restricciones lineales.
+De acuerdo para definir el problema, estableceremos restricciones lineales.
 
 ![linear-programming-problem-category](./imgs/linear-programming-problem-category.png)
 
@@ -146,25 +146,26 @@ Matematicamente representable tal que
 
 $10x_1 + 12x_2 >= 90$
 
+![linear-programming-problem-maths-example](./imgs/linear-programming-problem-maths-example.png)
 
+En las restricciones lineales, podemos intercambiar $>=$ o por el contrario $<=$ si cambiamos la polaridad de la ecuacion en ambos lados.
 
+![linear-constraint-inversion-example](./imgs/linear-constraint-inversion-example.png)
 
+> Puede ser util si queremos simplificar un problema unificando los tipos de restricciones y lidiar solo con $<=$ o $>=$.
 
+## Linear Programming Algorithms
 
+Hasta el momento hemos descrito este tipo de problemas donde tenemos que encontrar los valores de sustitucion que mejor se adapten (ya sea que se trate de una funcion de coste u objetivo). Algunos de los algoritmos empleados para resolver este tipo de problemas son:
 
+  - **Simplex**
 
+  - **Interior-Point**
 
+# Constraint Satisfaction
 
+Existe una categoria especifica de problemas basados en el cumplimiento de ciertas restricciones -- generalmente los conocemos como `constraint satisfaction problems`. 
 
+En este tipo problemas disponemos de una cantidad determinada de variables de sustitucion, cada una de estas puede asumir un conjunto limitado de valores (`constraints`). El objetivo es buscar los valores mas optimos para estas variables de acuerdo para conseguir algun objetivo.
 
-
-
-
-
-
-
-
-
-
-
-
+> **Nota del redactor** -- Entiendo que los `linear problems` caen en esta categoria.
