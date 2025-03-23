@@ -82,7 +82,7 @@ Se fundamenta en la varianza a lo largo del tiempo de un parametro que controla 
 
 - Si estado elegido aleatoriamente es mejor que el estado actual, el estado actual pasa a ser aquel elegido aleatoriamente; por el contrario,
 
-- Si el estado elegido aleatoriamente es peor que el estado actual, el estado actual es el estado elegido aleatoriamente aunque con probabilidad $e^{ΔE/T}$, donde $ΔE$ es que tan mejor / peor es el estado elegido con respecto al actual y T la temperatura actual. A mas temperatura, menos tolerancia a elegir estados peores que el actual. 
+- Si el estado elegido aleatoriamente es peor que el estado actual, el estado actual es el estado elegido aleatoriamente aunque con probabilidad $e^{ΔE/T}$, donde $ΔE$ es que tan mejor / peor es el estado elegido con respecto al actual y T la temperatura actual. A mas temperatura, menos tolerancia a elegir estados peores que el actual.
 
 # Traveling Salesman Problem
 
@@ -96,7 +96,7 @@ Resolver el problema es bastante costoso computacionalmente hablando, de hecho e
 
 ![travelling-salesman-neighbor-state-example](./imgs/travelling-salesman-neighbor-state-example.png)
 
-# Linear Programming 
+# Linear Programming
 
 Consiste en una categoria de problemas donde buscamos optimizar una funcion matematica de coste / objetivo; tal y como si estuvieramos resolviendo incognitas en algebra lineal, en este tipo de problemas nos interesa encontrar los mejores valores de sustitucion para la funcion matematica. Nos encontraremos con `linear programming` en escenarios donde se usan numeros reales, en lugar de valores discretos.
 
@@ -148,7 +148,7 @@ $10x_1 + 12x_2 >= 90$
 
 ![linear-programming-problem-maths-example](./imgs/linear-programming-problem-maths-example.png)
 
-En las restricciones lineales, podemos intercambiar $>=$ o por el contrario $<=$ si cambiamos la polaridad de la ecuacion en ambos lados.
+En las inecuaciones de las restricciones lineales, podemos intercambiar $>=$ o por el contrario $<=$ si cambiamos la polaridad de la ecuacion en ambos lados.
 
 ![linear-constraint-inversion-example](./imgs/linear-constraint-inversion-example.png)
 
@@ -156,16 +156,55 @@ En las restricciones lineales, podemos intercambiar $>=$ o por el contrario $<=$
 
 ## Linear Programming Algorithms
 
-Hasta el momento hemos descrito este tipo de problemas donde tenemos que encontrar los valores de sustitucion que mejor se adapten (ya sea que se trate de una funcion de coste u objetivo). Algunos de los algoritmos empleados para resolver este tipo de problemas son:
+Hasta el momento hemos descrito este tipo de problemas donde tenemos que encontrar los valores de sustitucion que mejor se adapten (ya sea que se trate de una funcion de coste u objetivo). No obstante, algunos de los algoritmos empleados para resolver este tipo de problemas son:
 
-  - **Simplex**
+- **Simplex**
 
-  - **Interior-Point**
+- **Interior-Point**
 
 # Constraint Satisfaction
 
-Existe una categoria especifica de problemas basados en el cumplimiento de ciertas restricciones -- generalmente los conocemos como `constraint satisfaction problems`. 
+Existe una categoria especifica de problemas basados en el cumplimiento de ciertas restricciones -- generalmente los conocemos como `constraint satisfaction problems`.
 
-En este tipo problemas disponemos de una cantidad determinada de variables de sustitucion, cada una de estas puede asumir un conjunto limitado de valores (`constraints`). El objetivo es buscar los valores mas optimos para estas variables de acuerdo para conseguir algun objetivo.
+En este tipo de problemas disponemos de una cantidad determinada de variables de sustitucion, cada una de estas puede asumir un conjunto limitado de valores. Finalmente, basandonos en los valores que estas pueden asumir aplicamos restricciones (`constraints`).
 
-> **Nota del redactor** -- Entiendo que los `linear problems` caen en esta categoria.
+El objetivo es buscar los valores correctos para encajar con todas las restricciones planteadas por el problema.
+
+## Students Example
+
+Pongamos como referencia el supuesto caso de organizar fechas de examenes a un grupo de estudiantes. Para el ejemplo digamos que existen cuatro estudiantes diferentes, cada uno de los estudiantes debe hacer tres examenes de materias diferentes. Ademas, existiran tres dias habiles en los que hacer los examenes (lunes, martes y miercoles).
+
+El objetivo es conseguir organizar la fecha de los examenes de manera que ningun estudiante tenga que hacer dos examenes el mismo dia.
+
+![students-contraint-problem-explanation](./imgs/students-contraint-problem-explanation.png)
+
+> Si no es posible encajar a la perfeccion con la restriccion, nos gustaria minimizar dicha situacion en la medida de lo posible.
+
+Hasta este momento hemos descrito el problema, aunque ¿Como podemos codificar esta idea de manera que nuestro agente pueda encontrar la solucion adecuada?
+
+Optaremos un concepto de nodos donde cada nodo representa un examen de una materia determinada. Siguiendo con la restriccion, si el examen actual es $A$, el siguiente no puede ser $B$ porque existiria un estudiante que hace dos examens el mismo dia.
+
+![constraint-problem-nodes-edges](./imgs/constraint-problem-node-edges.png)
+
+> Como ya se menciono con anterioridad, esta estructura de nodos, asi como sus restricciones (fronteras entre nodos) pueden ser graficamente representables.
+
+Si repetieramos el mismo proceso para todas las variables (examenes), obtendriamos un `constraint graph` completo y se veria de la siguiente manera.
+
+![constraint-graph-diagram](./imgs/constraint-graph-diagram.png)
+
+> Las fronteras entre nodos en definitiva representan desigualdad para los valores de las variables (los dominios para las variables serian las fechas de examenes)
+
+En realidad podemos aplicar esta idea de encontrar la solucion a un rompecabezas siempre y cuando seamos capaces de extrapolar:
+  - Un sistema de `variables`, donde cada una de ellas tiene
+  - Un `dominio` de valores y existen una seria de
+  - `Restricciones` que han de ser satisfechas.
+
+![constraint-problem-students](./imgs/constraint-problem-students.png)
+
+## Sudoku Game Example
+
+Pongamos un ejemplo diferente encima de la mesa, digamos que tenemos que resolver un sudoku. De nuevo surge el conecpto de variables, dominio y restricciones.
+
+![constraint-problem-sudoku-game](./imgs/constraint-problem-sudoku-game.png)
+
+> El dominio de valores para cada variable puede diferir, aunque en este caso todas pueden asumir los mismos valores.
