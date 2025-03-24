@@ -170,7 +170,9 @@ En este tipo de problemas disponemos de una cantidad determinada de variables de
 
 El objetivo es buscar los valores correctos para encajar con todas las restricciones planteadas por el problema.
 
-## Students Example
+## Examples
+
+### Students Example
 
 Pongamos como referencia el supuesto caso de organizar fechas de examenes a un grupo de estudiantes. Para el ejemplo digamos que existen cuatro estudiantes diferentes, cada uno de los estudiantes debe hacer tres examenes de materias diferentes. Ademas, existiran tres dias habiles en los que hacer los examenes (lunes, martes y miercoles).
 
@@ -195,16 +197,43 @@ Si repetieramos el mismo proceso para todas las variables (examenes), obtendriam
 > Las fronteras entre nodos en definitiva representan desigualdad para los valores de las variables (los dominios para las variables serian las fechas de examenes)
 
 En realidad podemos aplicar esta idea de encontrar la solucion a un rompecabezas siempre y cuando seamos capaces de extrapolar:
-  - Un sistema de `variables`, donde cada una de ellas tiene
-  - Un `dominio` de valores y existen una seria de
-  - `Restricciones` que han de ser satisfechas.
+
+- Un sistema de `variables`, donde cada una de ellas tiene
+- Un `dominio` de valores y existen una seria de
+- `Restricciones` que han de ser satisfechas.
 
 ![constraint-problem-students](./imgs/constraint-problem-students.png)
 
-## Sudoku Game Example
+### Sudoku Game Example
 
 Pongamos un ejemplo diferente encima de la mesa, digamos que tenemos que resolver un sudoku. De nuevo surge el conecpto de variables, dominio y restricciones.
 
 ![constraint-problem-sudoku-game](./imgs/constraint-problem-sudoku-game.png)
 
 > El dominio de valores para cada variable puede diferir, aunque en este caso todas pueden asumir los mismos valores.
+
+## Types of Constaints
+
+- **hard constraints** - Restricciones que tienen que ser satisfechas de acuerdo para tomar como valida una solucion a un `constraint problem`
+
+- **soft constraints** - Expresan una preferencia entre varias posibles soluciones a un problema. Los algoritmos de resolucion de `constraint problems`que trabajan con`soft constraints` buscan obtener la solucion preferida (entiendo que buscar la solucion preferida puede ser a su vez un linear problem).
+
+- **unitary constraint** - Restricciones que implican una unica variable ($A != Wednesday$)
+
+- **binary constraint** - Restricciones que implican dos variables diferentes ($A != B$)
+
+## Terms
+
+- **node consistency** - Describe el estado o situacion de un `constraint problem` en donde todas las variables del problema son compatibles con sus `unitary constraints`; en otras palabras, sobre cada variable, su dominio de valores es compatible con las restricciones unitarias relativas a dicha variable.
+
+De acuerdo para conseguir **node consistency** en un `constraint problem` hemos de reducir el dominio de valores para cada varible. Eliminando de los dominios aquellos valores que no satisfacen este tipo de restricciones.
+
+![avhieve-node-consistency](./imgs/avhieve-node-consistency.png)
+
+> Anteriormente ambas variables presentaban el mismo dominio de valores (Monday, Tuesday and Wednesday)
+
+- **arc consistency** - Describe el estado o situacion de un `constraint problem` en donde todas las variables satisfacen las `binary constraints` en las que estas aparecen. En otras palabras, y poniendo como ejemplo un supuesto problema en el que trabajamos solo con dos variables $X$ e $Y$, todas las restricciones binarias de $X$ (que ademas tienen que involucrar a $Y$, pues es la unica otra variable del problema) han de ser compatibles con $Y$ (esto significa que almenos 1 posible valor de $Y$ es compatible con la restriccion binaria que aplica $X$ sobre cada valor de su dominio).
+
+![achive-arc-consistency](./imgs/achive-arc-consistency.png)
+
+> Reducimos el dominio de valores para la variable $A$ porque el valor "Wednesday" no es compatible con la restriccion binaria $A\ !=\ B$. En este caso se ve muy facil porque $B$ solo puede adoptar un valor posible tras haber convertido el problema en `node consistant` (sin embargo podria adoptar mas valores), y es que si en algun momento $B$ toma el valor "Wednesday" la restriccion binaria no se cumplira, de ahi que reduzcamos el dominio y dejemos solamente los valores que encajen con la restriccion.
