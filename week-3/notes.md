@@ -237,3 +237,39 @@ De acuerdo para conseguir **node consistency** en un `constraint problem` hemos 
 ![achive-arc-consistency](./imgs/achive-arc-consistency.png)
 
 > Reducimos el dominio de valores para la variable $A$ porque el valor "Wednesday" no es compatible con la restriccion binaria $A\ !=\ B$. En este caso se ve muy facil porque $B$ solo puede adoptar un valor posible tras haber convertido el problema en `node consistant` (sin embargo podria adoptar mas valores), y es que si en algun momento $B$ toma el valor "Wednesday" la restriccion binaria no se cumplira, de ahi que reduzcamos el dominio y dejemos solamente los valores que encajen con la restriccion.
+
+## Pseudocode
+
+### Revise Routine
+
+A continuacion vamos a exponer la idea detras de un algoritmo para aseguar **arc consistency** en todo un **constraint problem** (lo haremos dividiendo el problema en vaias etapas).
+
+En primer lugar definiremos una rutina $REVISE(X, Y)$ para verificar sobre el dominio de valoers de la variable $X$, cuando no hay un cumplimiento de la restriccion binaria, es decir, cuando no hay al menos un correspondiente valor $Y$ valido. Todos aquellos valores del dominio de $X$ que no tengan un correspondiente valor valido $Y$ seran eliminados del dominio de $X$.
+
+![arc-consistency-revise-function](./imgs/arc-consistency-revise-function.png)
+
+> Si el dominio de $X$ fue reduzido, la rutina debe retornar vedadero, de lo contrario falso. El motivo por que dejamos registrado si hubo algun cambio en el dominio de la variable $X$ es porque tras eliminar un valor que esta puede asumir, estamos potencialmente dando lugar a que otras **binary constraints** (que anteriormente estaban siendo satisfechas) dejen de estar satisfechas; por lo tanto sera necesario hacer un repaso del cumplimiento de las restricciones en las que participa la variable con el nuevo dominio de posibles valores.
+
+### AC-3
+
+Hasta el momento podemos asegurar **arc consistency** entre dos simbolos, pero, y si queremos lograr el mismo efecto con todas las variables de un **constraint problem**. En escenarios de este utilizaremos el algoritmo AC-3 (donde por lo general emplearemos queues para guardar los pares de variables de las restricciones binarias).
+
+A ser posible, implementaremos este algoritmo como una rutina que recibe un CSP (`constraint satisfaction problem`).
+
+![arc-consistency-ac3](./imgs/arc-consistency-ac3.png)
+
+- En primer lugar introduciremos en la **queue** en forma de pares todas las conexiones entre nodos que tiene una restriccion binaria.
+
+- A continuacion definiremos un bucle que sera ejecutado siempre y cuando haya elementos dentro de la cola y por cada iteracion extraeremos un elemento de dicha (una conexion que comprende dos nodos).
+
+- El par de variables extraidas (de la forma $X$, $Y$) lo pasaremos por la rutina $REVISE$, intentando reducir el dominio de $XS.
+
+- Si el dominio de $X$ fue reducido a ningun simbolo, es sinonimo de que no hay solucion al **constraint problem**
+
+- Por el contrario, es decir, si tras reducir el dominio, sigue habiendo valores disponibles, revalidaremos todas las restricciones binarias que involucren a la variable cuyo dominio fue reducido. Esto lo haremos agregando las correspondientes conexiones de nodos a la cola.
+
+## The Big Problem with AC-3
+
+El problema al momento de intentar resolver un **constraint poblem** con algoritmos como AC-3, es que estos se sustentan sobre llamadas a $REVISE(X, Y)$, es decir, en el fondo estamos verificando restricciones binarias donde participan solo dos nodos. **Si bien AC-3 se comporta realmente bien reduciendo los dominios de las variables**, a pesar de revalidar las restricciones tras una actualizacion en el domino de una variable, **AC-3 no siempre dara con una solucion al problema**.
+
+De acuerdo para encontrar una solucion al problema tendremos que emplear un algoritmo de busqueda (tal y como revisamos en la primera leccion).
