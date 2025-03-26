@@ -272,4 +272,24 @@ A ser posible, implementaremos este algoritmo como una rutina que recibe un CSP 
 
 El problema al momento de intentar resolver un **constraint poblem** con algoritmos como AC-3, es que estos se sustentan sobre llamadas a $REVISE(X, Y)$, es decir, en el fondo estamos verificando restricciones binarias donde participan solo dos nodos. **Si bien AC-3 se comporta realmente bien reduciendo los dominios de las variables**, a pesar de revalidar las restricciones tras una actualizacion en el domino de una variable, **AC-3 no siempre dara con una solucion al problema**.
 
+## Searching for Solutions
+
 De acuerdo para encontrar una solucion al problema tendremos que emplear un algoritmo de busqueda (tal y como revisamos en la primera leccion).
+
+- **initial state**: El estado del problema consistira en una estructua de datos que enlaza nombres de variables con posibles valores que estas pueden asumir (confecciona los dominios de las variables). No obstante el estado inicial del problema no contrendra ninguna variable.
+
+- **actions**: De acuerdo para desbloquear una nueva accion que podamos hacer dado el estado actual, podemos empujar un nuevo par de la forma $variable\ =\ value$ al estado.
+
+- **transaction model**: Muestra el efecto de cada una de las acciones (donde podemos elegir entre una variedad de pares de la forma $variable\ =\ value$) sobre el conjunto de pares (estado actual). Por cada accion que tomemos, los dominios de las variables tenderan a estrecharse.
+
+- **goal test**: Verifica el cumplimiento de todas las restricciones sobre el conjunto de pares del estado actual.
+
+- **path cost function**: La funcion de coste en este caso no deberia de favorecer a ningun nodo estado en particular.
+
+El problema de encontrar una solucion a un `csp` mediante un algoritmo de busqueda que emplee DFS o BFS es la ineficiencia. En realidad realidad podriamos aprovecharnos de la naturaleza de los `csp` para implementar un algoritmo de busqueda mejor adaptado y mas eficiente.
+
+> Un ejemplo de una posible optimizacion seria el orden de los pares dentro de la estructura del estado. Este no importa como sea analizado, es decir $\ A=2\ B=8\ ==\ B=8\ A=2$. Cualquier algoritmo que no aplique esta optimizacion para los problemas de satisfaccion de restricciones seran ineficientes.
+
+## Backtracking Seach
+
+
