@@ -292,4 +292,50 @@ El problema de encontrar una solucion a un `csp` mediante un algoritmo de busque
 
 ## Backtracking Seach
 
+Consiste en un algoritmo de busqueda recursivo que analiza todas las combinaciones posibles en forma de arbol que un `csp` puede tener.
 
+Gracias a backtracking search podemos resolver un `csp` descartando recursivamente aquellas ramas del arbol que no satisfagan las restricciones del problema.
+
+El algoritmo recibira dos argumentos:
+
+- **Assigment**: Estructura de datos que contiene las variables del `csp`, asi como los valores que cada una de estas puede tener (que satisfagan las restricciones del `csp`).
+
+  - A lo lago de la ejecucion del algoritmo recursivo, el **assigment** sera modificado agregando / eliminando nuevos pares $vaiable\ +\ valor$, descartando las ramas de posibilidades que en algun momento impidan la satisfaccion de las restricciones del problema y buscando encontrar la solucion (la forma de rellenar **assigment** compliendo todas las restricciones)
+
+- **Constraint Satisfacion Problem (CSP)**: Contiene todas las variables del problema, asi como sus dominios de valores y restricciones.
+
+> Consideraremos que un **assigment** es _completo_ si contiene la totalidad de las variables del problema asociadas a un valor y sin romper la satisfaccion de algunas de las restricciones del `csp`.
+
+Podemos definir el procedimiento de este algoritmo de la siguiente forma:
+
+- Recibimos el **assigment** y una estructura con el `csp`
+
+- Elegimos una variable del `csp` que no este configurada
+
+- Obtenemos todos los valores para esa variable dentro del dominio.
+
+  - Sobre cada valor, verificamos si existe consitencia dentro del **assigment**.
+
+  > Supongo que mediante AC-3
+
+  Si es consistente se añade al **assigment** y volvemos a ejecutar recursivamente el algoritmo `backtrack`.
+
+  > Aunque ahora el **assigment** es diferente y por lo anto los valores de una variable del `csp` no configurada en el **assigment** generara respuestas diferentes a la pregunta:
+
+  _"Es el valor de la varible consistente con el assigment actual ?"_
+
+  Si la llamada recursiva a `backtrack` NO retorna un fallo (en otras palabras: en toda la pila de llamadas recursivas relativas a la rama del arbol de posibilidades actualmente seleccionado no se encuentra ninguna fallo de consistencia y por lo tanto en dicha rama existe una combinacion de valores para las variables del `csp` que que no irrumpen las restricciones del problema), consideraremos el valor proporcionado a `backtrack` como valido a la rama actual.
+
+  > De lo contrario, si.
+
+En definitiva, este algoritmo verifica consistencia para todas las variables de un `csp` encontrando un camino de conexiones entre ramas en todo el arbol de posibilidades que reprenseta un **assigment**.
+
+Suponiendo que las variables tengan dominios de mismo tamaño, podemos representar matematicamente el numero de combinaciones o ramas posibles que un assigment puede tener (dado el numero de variables y tamaño de sus dominios)
+
+$d^n\ +\ d^{n-1}\ +\ d^{n-2}\ +\ ...\ +\ d^{n-n}$
+
+- Donde $d$ es el tamaño de los dominios para las variables, y
+
+- $n$ representa un campo finito que puede asuir los valores 0...n haciendo referencia al numero de variables aun sin elegir su valor.
+
+![backtracking-pseudocode](./imgs/backtracking-pseudocode.png)
