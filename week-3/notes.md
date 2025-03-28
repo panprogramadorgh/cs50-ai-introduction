@@ -339,3 +339,17 @@ $d^n\ +\ d^{n-1}\ +\ d^{n-2}\ +\ ...\ +\ d^{n-n}$
 - $n$ representa un campo finito que puede asuir los valores 0...n haciendo referencia al numero de variables aun sin elegir su valor.
 
 ![backtracking-pseudocode](./imgs/backtracking-pseudocode.png)
+
+## Inference
+
+De acuerdo para optimizar todavia mas el algoritmo, emplearemos el concepto de inferencia que vimos con anterioridad. Emplearemos la informacion conocida para crear nuevas concluisones de manera inteligente.
+
+### Maintaining Arc-Consistency
+
+- Obtenemos todos las variables definidas en el **assigment** que participen en una restriccion binaria junto con otra variable no encontrada en el **assigment** (por ejemplo $C$).
+
+- Tras tomar todos esos valores, podemos guardarlos en un set y hacer una resta de conjuntos sobre el dominio de valores permitidos.
+
+- Si tras la diferencia de conjuntos obtenemos que solamente queda un valor disponible para ser elegido, lo tomaremos como una inferencia valida.
+
+- Una inferencia puede dar lugar a otra. Bajo este mismo principio, y buscando constantemente nuevas inferencias podemos evitar hacer backtrack (aunque eventualmente no encontraremos inferencias y tendremos que seguir "arriesgando" con backtrack)
