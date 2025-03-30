@@ -344,8 +344,6 @@ $d^n\ +\ d^{n-1}\ +\ d^{n-2}\ +\ ...\ +\ d^{n-n}$
 
 De acuerdo para optimizar todavia mas el algoritmo, emplearemos el concepto de inferencia que vimos con anterioridad. Emplearemos la informacion conocida para crear nuevas concluisones de manera inteligente.
 
-### Maintaining Arc-Consistency
-
 - Obtenemos todos las variables definidas en el **assigment** que participen en una restriccion binaria junto con otra variable no encontrada en el **assigment** (por ejemplo $C$).
 
 - Tras tomar todos esos valores, podemos guardarlos en un set y hacer una resta de conjuntos sobre el dominio de valores permitidos.
@@ -353,3 +351,59 @@ De acuerdo para optimizar todavia mas el algoritmo, emplearemos el concepto de i
 - Si tras la diferencia de conjuntos obtenemos que solamente queda un valor disponible para ser elegido, lo tomaremos como una inferencia valida.
 
 - Una inferencia puede dar lugar a otra. Bajo este mismo principio, y buscando constantemente nuevas inferencias podemos evitar hacer backtrack (aunque eventualmente no encontraremos inferencias y tendremos que seguir "arriesgando" con backtrack)
+
+### Maintaining Arc-Consistency
+
+De eso se trata precisamente el concepto de mantenimiento de consistencia arc. Por cada vez que rellenamos el **assigment** (ya sea por exploracion con `backtrack` o por inferencia) vamos a intentar hacer cumplir consistencia.
+
+![arc-consistency-inference](./imgs/arc-consistency-inference.png)
+
+Para aplicar esta idea de buscar inferencias por cada **assigment** que es introducido, tenemos que modificar ligeramente el algoritmo de `backtrack` .
+
+![arc-consistency-inference-pseudocode](./imgs/arc-consistency-inference-pseudocode.png)
+
+## Other Heuristics in Backtrack
+
+### Select-Unassigned-Var
+
+De acuerdo para optimizar todavia mas este algoritmo, podemos emplear heuristicas al momento de seleccionar las variables que vamos a intentar introducir en el **assigment** (en lugar de elegir una variable del `csp` que no se encuentre en el **assigment** de manera aleatoria).
+
+Alguna heuristica que podemos aplicar es
+
+- **minimum remaining values (MRV)**: Selecciona la variable que tiene dominio mas bajo (menor numero de valores para elegir). Cabe destacar que cuando hablamos de variable con dominio mas bajo, estamos hablando de dominio mas bajo tras calcular todas las posibles inferencias.
+
+- **degree heuristic**: Selecciona la variable con mayor grado (donde el grado es el numero de nodos conectados o desde un punto de vista mas abstracto, el numero de restricciones binarias donde dicha variable esta impliicada)
+
+Para selecionar la siguiente variable mas optima para introducir en el **assigment**:
+
+- En primer lugar nos decantaremos por la variable con el dominio mas pequeño (es posible que obtengamos varios dominios de mismo tamaño)
+
+- Para elegir entre varias variables con dominios de mismo tamaño, optaremos por hacer un calculo heuristico con `degree heuristic`.
+
+### Domain-Values
+
+Otra heuristica que podemos aplicar consiste en ordenar probabilisticamente los valores del dominio de una variable, de tal manera que aquellos valores con mayor probabilidad de ser los correctos aparezcan primero.
+
+Para evaluar cual de los valores del dominio es mas probable, haremos uso de la heuristica de `least-constraining values`; esta consiste en ordenar ascendentemente los valores por numero de opciones que son descartadas en los dominios de variables vecinas (valores mas restrictivos).
+
+- Ante todo vamos a buscar los valores que impliquen restricciones mas livianas. Cuanto menos restrictivo sea un valor, mas necesario sera explorar los dominios de otras variables (pues nos estamos comprometiendo menos a llegar a un estado terminal). A menos restrictivo el valor, menor compromision para llegar a un estado terminal, mayor numero de "caminos" por explorar (dominios mas grandes), mayor probabilidad de ser un camino con una solucion.
+
+# Lection Sumary
+
+En definitiva en esta leccion buscamos optimizar problemas de busqueda empleando conceptos vistos con anterioridad como la inferencia y probabilidad.
+
+Hemos visto tres categorias de algoritmos diferentes para resolver este tipo de problemas. Cada una de ellas se ajusta mejor a problemas con caracteristicas particulares.
+
+- **Local Seach**: Hemos de codificar una nocion de nodos o estados vecinos. El objetivo es obtener el nodo o estado con mejor valor en la funcion objetivo o de coste. Para maximizar o minimizar este resultado, emplearemos algoritmos para movernos inteligentemente por el espacio de estados.
+
+  - La clave de este algoritmo esta en la heuristica empleada para moverse inteligentemente de nodo a nodo, en lugar de revisar el espacio de estados por completo y de forma ingenua.
+
+- **Linear Programming**: Los problemas son planteados como ecuaciones lineales. La funcion objetivo o de coste asume forma matematica.
+
+  - Para calcular el valor de la funcion objetico / de coste, una serie de coheficientes o variables de sustitucion han de ser provistos.
+    - Tal y como sucedia con anteriodidad, el objetivo es maximizar o minimizar el valor obtenido por la funcion.
+  - A todo esto se suma el concepto de restricciones lineales. Hablamos de inecuaciones matematicas que toman ciertos coheficientes y que han de cumplirse de acuerdo para dar una solucion al problema considerada como valida.
+
+- **Constraint Satisfaction**: Proporciona soluciones a problemas con planteamientos mas cerrados cuyo estado terminal es binario (existe o deja de existir una solucion valida).
+  - Hemos de codificar una nocion de variable con un dominio de posibles valores.
+  - En definitiva consiste en dar con una combinacion de valores para las variables y que todas las restricciones sean satisfechas.
