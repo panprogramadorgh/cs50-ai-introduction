@@ -105,14 +105,12 @@ class CrosswordCreator:
         """
 
         for var in self.crossword.variables:
-            domain: list[str] = []
             for word in self.crossword.words:
-                if len(word) != var.length:
+                if len(word) == var.length:
                     continue
-                domain.append(word)
-            self.domains[var] = domain
+                self.domains[var].remove(word)
 
-    def revise(self, x, y):
+    def revise(self, x: Variable, y: Variable):
         """
         Make variable `x` arc consistent with variable `y`.
         To do so, remove values from `self.domains[x]` for which there is no
@@ -121,9 +119,44 @@ class CrosswordCreator:
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
 
-    def ac3(self, arcs=None):
+        # Variable overlap
+        overlap = self.crossword.overlaps[x, y]
+        if overlap is None:  # No overlap means no arcs between
+            return False
+
+        # Absolute position for variable overlap
+        (i, j) = overlap
+
+        # Absolute J - variable relative J, or
+        # Absolute I - variable relative I
+        x_overlap_index = j - x.j if x.direction == Variable.ACROSS else i - x.i
+        y_overlap_index = j - y.j if x.direction == Variable.ACROSS else i - y.i
+
+        # We copy the set structure since we are going to remove elements at the same time we iterate through
+        x_domain = self.domains[x].copy()
+
+        # X domain was revised
+        revised = False
+
+        for x_value in x_domain:
+            # We iterate for each value of `y` to find a compatible value with `x`
+            compatible_value = False
+            for y_value in self.domains[y]:
+                if x_value[x_overlap_index] != y_value[y_overlap_index]:
+                    continue
+                compatible_value = True
+                break
+            if compatible_value:
+                continue
+
+            # If isn't compatible we remove the value from its domain
+            self.domains[x].remove(x_value)
+            revised = True
+
+        return revised
+
+    def ac3(self, arcs: list | None = None):
         """
         Update `self.domains` such that each variable is arc consistent.
         If `arcs` is None, begin with initial list of all arcs in the problem.
@@ -132,6 +165,12 @@ class CrosswordCreator:
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
+
+        # while len(arcs) > 0:
+        # arcs.pop
+
+        # self.crossword.
+
         raise NotImplementedError
 
     def assignment_complete(self, assignment):
