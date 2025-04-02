@@ -1,6 +1,7 @@
 import sys
 
 from crossword import *
+from util import *
 
 
 class CrosswordCreator:
@@ -128,8 +129,8 @@ class CrosswordCreator:
         # Absolute position for variable overlap
         (i, j) = overlap
 
-        # Absolute J - variable relative J, or
-        # Absolute I - variable relative I
+        # Absolute J - variable's relative J, or
+        # Absolute I - variable's relative I
         x_overlap_index = j - x.j if x.direction == Variable.ACROSS else i - x.i
         y_overlap_index = j - y.j if x.direction == Variable.ACROSS else i - y.i
 
@@ -156,7 +157,7 @@ class CrosswordCreator:
 
         return revised
 
-    def ac3(self, arcs: list | None = None):
+    def ac3(self, arcs: list[tuple[Variable, Variable]] | None = None):
         """
         Update `self.domains` such that each variable is arc consistent.
         If `arcs` is None, begin with initial list of all arcs in the problem.
@@ -166,26 +167,63 @@ class CrosswordCreator:
         return False if one or more domains end up empty.
         """
 
-        # while len(arcs) > 0:
-        # arcs.pop
+        # If arcs isn't specified, then take all variable overlaps as arcs
+        problem_arcs = self.crossword.overlaps.keys() if arcs is None else arcs
 
-        # self.crossword.
+        while len(problem_arcs) > 0:
+            (x, y) = problem_arcs.pop(0)
+            if self.revise(x, y):  # Reduces x's domain if needed to enfoce consistency
+                # Seme variable's domain has no values and thus there's no solution to the csp
+                if len(self.domains[x]) == 0:
+                    return False
 
-        raise NotImplementedError
+                # If some values from x's domain were ruled out, then check arc consistency for each neighbor of x except of y
+                for z in self.crossword.neighbors(x):
+                    if z == y:
+                        continue
+                    problem_arcs.append((x, y))
+        return True
 
-    def assignment_complete(self, assignment):
+    def assignment_complete(self, assignment: dict[Variable, str]):
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        raise NotImplementedError
 
-    def consistent(self, assignment):
+        # We are going to assume assignment does not contain a key for all possible variables in the problem so we need check if that variable exists in assignment and thus confirm it is complete.
+
+        is_complete = True
+        for variable in self.crossword.variables:
+            if has_key(variable, assignment):
+                continue
+            is_complete = False
+            break
+        return is_complete
+
+    def consistent(self, assignment: dict[Variable, str]):
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
-        raise NotImplementedError
+
+        assignment_words = tuple(word for word in assignment.values())
+
+        # Dupplicated words isn't allowed
+        if len(set(assignment_words)) != len(assignment_words):
+            return False
+
+        # Each variable has to fit in in terms of length
+        self.enforce_node_consistency()
+
+        # Each variable has to correctly overlap with other variables
+        self.ac3()
+
+        # Checking if the csp has a solution
+        for variable in self.crossword.variables:
+            if len(self.domains[variable]) == 0:
+                return False
+
+        return True
 
     def order_domain_values(self, var, assignment):
         """
