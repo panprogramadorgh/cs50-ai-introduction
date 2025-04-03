@@ -3,7 +3,6 @@ import sys
 from crossword import *
 from util import *
 
-
 class CrosswordCreator:
 
     def __init__(self, crossword: Crossword):
@@ -212,9 +211,9 @@ class CrosswordCreator:
         if len(set(assignment_words)) != len(assignment_words):
             return False
 
+        # Ruling out domain values from variables
         # Each variable has to fit in in terms of length
         self.enforce_node_consistency()
-
         # Each variable has to correctly overlap with other variables
         self.ac3()
 
@@ -225,13 +224,42 @@ class CrosswordCreator:
 
         return True
 
-    def order_domain_values(self, var, assignment):
+    def order_domain_values(self, var: Variable, assignment: dict[Variable, str]):
         """
         Return a list of values in the domain of `var`, in order by
         the number of values they rule out for neighboring variables.
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
+
+        # Calculates the sumation of all variable's domain size
+        domains_len = lambda dom: sum(tuple(len(dom[neihgbour]) for neihgbour in neighbours))
+        
+        # A copy of the original self.domains dict (so then we can modify and test other possible domains)
+        current_domains = self.domains.copy()  
+        
+        # Sumation of all variable's domain size  
+        current_domains_len = domains_len(current_domains)
+
+        # Neighbouring variables
+        neighbours = self.crossword.neighbors(var)
+    
+        # We assume assignment is going to be provided as consistent (all variables in var's domain should return True when self.consistent)
+        # In any case, all no consistent variables will belong to this set and thus them will be queued at the end the list returned by this function.
+        no_consistent: set[Variable] = {}
+
+        # Contains the number or discarted values for neighbouring variables
+        all_domains_len: dict[str, int] = {}
+
+        for value in self.domains[var]:
+            self.domains[var] = {value}
+            if not self.consistent():
+                no_consistent.add(value)
+                break
+            all_domains_len[value] = current_domains_len - domains_len(self.domains)
+    
+        # TODO: Implementar quick sort para ordenador all_domains_len
+
         raise NotImplementedError
 
     def select_unassigned_variable(self, assignment):

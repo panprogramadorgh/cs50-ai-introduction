@@ -1,7 +1,8 @@
-dummy.py
-bin
-myenv
+data
 week-0/degrees/large
 week-0/degrees/small
-.zip
+*dummy.py
+bin
+myenv
+*.zip
 __pycache__

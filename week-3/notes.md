@@ -300,37 +300,37 @@ El algoritmo recibira dos argumentos:
 
 - **Assigment**: Estructura de datos que contiene las variables del `csp`, asi como los valores que cada una de estas puede tener (que satisfagan las restricciones del `csp`).
 
-  - A lo lago de la ejecucion del algoritmo recursivo, el **assigment** sera modificado agregando / eliminando nuevos pares $vaiable\ +\ valor$, descartando las ramas de posibilidades que en algun momento impidan la satisfaccion de las restricciones del problema y buscando encontrar la solucion (la forma de rellenar **assigment** compliendo todas las restricciones)
+  - A lo lago de la ejecucion del algoritmo recursivo, el **assignment** sera modificado agregando / eliminando nuevos pares $vaiable\ +\ valor$, descartando las ramas de posibilidades que en algun momento impidan la satisfaccion de las restricciones del problema y buscando encontrar la solucion (la forma de rellenar **assignment** compliendo todas las restricciones)
 
 - **Constraint Satisfacion Problem (CSP)**: Contiene todas las variables del problema, asi como sus dominios de valores y restricciones.
 
-> Consideraremos que un **assigment** es _completo_ si contiene la totalidad de las variables del problema asociadas a un valor y sin romper la satisfaccion de algunas de las restricciones del `csp`.
+> Consideraremos que un **assignment** es _completo_ si contiene la totalidad de las variables del problema asociadas a un valor y sin romper la satisfaccion de algunas de las restricciones del `csp`.
 
 Podemos definir el procedimiento de este algoritmo de la siguiente forma:
 
-- Recibimos el **assigment** y una estructura con el `csp`
+- Recibimos el **assignment** y una estructura con el `csp`
 
 - Elegimos una variable del `csp` que no este configurada
 
 - Obtenemos todos los valores para esa variable dentro del dominio.
 
-  - Sobre cada valor, verificamos si existe consitencia dentro del **assigment**.
+  - Sobre cada valor, verificamos si existe consitencia dentro del **assignment**.
 
   > Supongo que mediante AC-3
 
-  Si es consistente se añade al **assigment** y volvemos a ejecutar recursivamente el algoritmo `backtrack`.
+  Si es consistente se añade al **assignment** y volvemos a ejecutar recursivamente el algoritmo `backtrack`.
 
-  > Aunque ahora el **assigment** es diferente y por lo anto los valores de una variable del `csp` no configurada en el **assigment** generara respuestas diferentes a la pregunta:
+  > Aunque ahora el **assignment** es diferente y por lo anto los valores de una variable del `csp` no configurada en el **assignment** generara respuestas diferentes a la pregunta:
 
-  _"Es el valor de la varible consistente con el assigment actual ?"_
+  _"Es el valor de la varible consistente con el assignment actual ?"_
 
   Si la llamada recursiva a `backtrack` NO retorna un fallo (en otras palabras: en toda la pila de llamadas recursivas relativas a la rama del arbol de posibilidades actualmente seleccionado no se encuentra ninguna fallo de consistencia y por lo tanto en dicha rama existe una combinacion de valores para las variables del `csp` que que no irrumpen las restricciones del problema), consideraremos el valor proporcionado a `backtrack` como valido a la rama actual.
 
   > De lo contrario, si.
 
-En definitiva, este algoritmo verifica consistencia para todas las variables de un `csp` encontrando un camino de conexiones entre ramas en todo el arbol de posibilidades que reprenseta un **assigment**.
+En definitiva, este algoritmo verifica consistencia para todas las variables de un `csp` encontrando un camino de conexiones entre ramas en todo el arbol de posibilidades que reprenseta un **assignment**.
 
-Suponiendo que las variables tengan dominios de mismo tamaño, podemos representar matematicamente el numero de combinaciones o ramas posibles que un assigment puede tener (dado el numero de variables y tamaño de sus dominios)
+Suponiendo que las variables tengan dominios de mismo tamaño, podemos representar matematicamente el numero de combinaciones o ramas posibles que un assignment puede tener (dado el numero de variables y tamaño de sus dominios)
 
 $d^n\ +\ d^{n-1}\ +\ d^{n-2}\ +\ ...\ +\ d^{n-n}$
 
@@ -344,7 +344,7 @@ $d^n\ +\ d^{n-1}\ +\ d^{n-2}\ +\ ...\ +\ d^{n-n}$
 
 De acuerdo para optimizar todavia mas el algoritmo, emplearemos el concepto de inferencia que vimos con anterioridad. Emplearemos la informacion conocida para crear nuevas concluisones de manera inteligente.
 
-- Obtenemos todos las variables definidas en el **assigment** que participen en una restriccion binaria junto con otra variable no encontrada en el **assigment** (por ejemplo $C$).
+- Obtenemos todos las variables definidas en el **assignment** que participen en una restriccion binaria junto con otra variable no encontrada en el **assignment** (por ejemplo $C$).
 
 - Tras tomar todos esos valores, podemos guardarlos en un set y hacer una resta de conjuntos sobre el dominio de valores permitidos.
 
@@ -354,11 +354,11 @@ De acuerdo para optimizar todavia mas el algoritmo, emplearemos el concepto de i
 
 ### Maintaining Arc-Consistency
 
-De eso se trata precisamente el concepto de mantenimiento de consistencia arc. Por cada vez que rellenamos el **assigment** (ya sea por exploracion con `backtrack` o por inferencia) vamos a intentar hacer cumplir consistencia.
+De eso se trata precisamente el concepto de mantenimiento de consistencia arc. Por cada vez que rellenamos el **assignment** (ya sea por exploracion con `backtrack` o por inferencia) vamos a intentar hacer cumplir consistencia.
 
 ![arc-consistency-inference](./imgs/arc-consistency-inference.png)
 
-Para aplicar esta idea de buscar inferencias por cada **assigment** que es introducido, tenemos que modificar ligeramente el algoritmo de `backtrack` .
+Para aplicar esta idea de buscar inferencias por cada **assignment** que es introducido, tenemos que modificar ligeramente el algoritmo de `backtrack` .
 
 ![arc-consistency-inference-pseudocode](./imgs/arc-consistency-inference-pseudocode.png)
 
@@ -366,7 +366,7 @@ Para aplicar esta idea de buscar inferencias por cada **assigment** que es intro
 
 ### Select-Unassigned-Var
 
-De acuerdo para optimizar todavia mas este algoritmo, podemos emplear heuristicas al momento de seleccionar las variables que vamos a intentar introducir en el **assigment** (en lugar de elegir una variable del `csp` que no se encuentre en el **assigment** de manera aleatoria).
+De acuerdo para optimizar todavia mas este algoritmo, podemos emplear heuristicas al momento de seleccionar las variables que vamos a intentar introducir en el **assignment** (en lugar de elegir una variable del `csp` que no se encuentre en el **assignment** de manera aleatoria).
 
 Alguna heuristica que podemos aplicar es
 
@@ -374,7 +374,7 @@ Alguna heuristica que podemos aplicar es
 
 - **degree heuristic**: Selecciona la variable con mayor grado (donde el grado es el numero de nodos conectados o desde un punto de vista mas abstracto, el numero de restricciones binarias donde dicha variable esta impliicada)
 
-Para selecionar la siguiente variable mas optima para introducir en el **assigment**:
+Para selecionar la siguiente variable mas optima para introducir en el **assignment**:
 
 - En primer lugar nos decantaremos por la variable con el dominio mas pequeño (es posible que obtengamos varios dominios de mismo tamaño)
 
