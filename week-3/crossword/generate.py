@@ -252,13 +252,14 @@ class CrosswordCreator:
         all_domains_len: dict[str, int] = {}
 
         for value in self.domains[var]:
+            self.domains = current_domains.copy()
             self.domains[var] = {value}
             if not self.consistent():
                 no_consistent.add(value)
                 break
             all_domains_len[value] = current_domains_len - domains_len(self.domains)
     
-        # TODO: Implementar quick sort para ordenador all_domains_len
+
 
         raise NotImplementedError
 
