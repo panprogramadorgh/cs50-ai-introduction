@@ -259,9 +259,9 @@ class CrosswordCreator:
                 break
             all_domains_len[value] = current_domains_len - domains_len(self.domains)
     
+        sorted_domains_len = [pair[1] for pair in quick_sort(list(all_domains_len.items()), get_value=lambda pair: pair[1], dir=ASC_SORT)]
 
-
-        raise NotImplementedError
+        return sorted_domains_len
 
     def select_unassigned_variable(self, assignment):
         """
