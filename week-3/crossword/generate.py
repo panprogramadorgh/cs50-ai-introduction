@@ -1,7 +1,52 @@
 import sys
-
 from crossword import *
-from util import *
+from typing import Any
+
+DESC_SORT, ASC_SORT = 0, 1
+"""quick_sort dir constant values"""
+
+def quick_sort(
+    iter: list[Any],
+    left: int = 0,
+    right: int = None,
+    dir: int= ASC_SORT, # DESC_SORT | ASC_SORT
+    sort=lambda x: x
+):
+    """
+    ### QuickSort algorithm
+
+    - Declare a `i` variable which will be the next pivot pos and will have an initial value of 0
+
+    - Iterates for each `iter` value
+
+    - For each iteration, if `value` is less than the current pivot value, then swap the value at next pivot pos by the iteration `value`
+    """
+
+    # Helper function
+    compare = lambda x, y: (x <= y) if (dir == ASC_SORT) else (x >= y)
+
+    if right is None:
+        right = len(iter) - 1
+
+    if left >= right:
+        return iter
+
+    pivot = sort(iter[right])  # Current pivot value
+    i = left  # Next pivot index
+
+    for j in range(left, right):
+        if compare(sort(iter[j]), pivot):
+            iter[i], iter[j] = iter[j], iter[i]
+            i += 1
+
+    iter[i], iter[right] = iter[right], iter[i]
+
+    quick_sort(iter, left=left, right=i - 1, sort=sort, dir=dir)
+    quick_sort(iter, left=i + 1, right=right, sort=sort, dir=dir)
+
+    return iter
+
+
 
 class CrosswordCreator:
 
@@ -172,7 +217,7 @@ class CrosswordCreator:
         while len(problem_arcs) > 0:
             (x, y) = problem_arcs.pop(0)
             if self.revise(x, y):  # Reduces x's domain if needed to enfoce consistency
-                # Seme variable's domain has no values and thus there's no solution to the csp
+                # Seem variable's domain has no values and thus there's no solution to the csp
                 if len(self.domains[x]) == 0:
                     return False
 
@@ -182,6 +227,27 @@ class CrosswordCreator:
                         continue
                     problem_arcs.append((x, y))
         return True
+    
+    def enforce_consistency(self, assignment: dict[Variable, str] = {}):
+        """
+        Searches for both arc and node consistency by reducing each csp variables domain but having into account the values from `assignment`.
+       
+        If there is no solution to the csp since some variable got zero elements in its domain and thus there is no solution to the problem it returns False, otherwise (i.e we still need to find a solution but we atleast know that there might be one) return True.
+        """ 
+
+        # Ruling out inconsistent values from variable domains
+        
+        self.enforce_node_consistency()
+        for var in self.crossword.variables:
+            if len(self.domains[var]): continue
+            return False
+     
+        # arcs = [(var, value) for (var, value) in assignment.values() if var in [] ] if len(assignment) else None
+
+        # TODO: Los unicos arcs (variable overlaps) son aquellos donde ambas variables aparezcan en el assignment
+        # self.ac3(arcs)
+
+        pass
 
     def assignment_complete(self, assignment: dict[Variable, str]):
         """
@@ -193,7 +259,7 @@ class CrosswordCreator:
 
         is_complete = True
         for variable in self.crossword.variables:
-            if has_key(variable, assignment):
+            if variable in assignment.keys():
                 continue
             is_complete = False
             break
@@ -205,22 +271,34 @@ class CrosswordCreator:
         puzzle without conflicting characters); return False otherwise.
         """
 
-        assignment_words = tuple(word for word in assignment.values())
+        # TODO: Finish
 
-        # Dupplicated words isn't allowed
+        # Optimize: In order to sort by the less restrective value for var, we have to create multiple versions of self.domains with the slightly difference of var's domain.
+
+        # We copy the current self.domains dict so after checking for consistency we can restore i
+        current_domains = self.domains.copy()
+
+        # Dupplicated words are not allowed
+        assignment_words = tuple(word for word in assignment.values())
         if len(set(assignment_words)) != len(assignment_words):
             return False
 
-        # Ruling out domain values from variables
-        # Each variable has to fit in in terms of length
-        self.enforce_node_consistency()
-        # Each variable has to correctly overlap with other variables
-        self.ac3()
+        for var, value in assignment.items():
+            self.domains[var] = {value}
 
-        # Checking if the csp has a solution
-        for variable in self.crossword.variables:
-            if len(self.domains[variable]) == 0:
-                return False
+        # Ruling out domain values from variables
+
+        # Problem has no solution
+        self.enforce_node_consistency()
+        for var in self.crossword.variables:
+            if len(self.domains[var]):
+                continue
+            return False
+        if not self.ac3(): # TODO: Finish
+            return False
+
+        # Restoring the initial domains dict
+        self.domains = current_domains
 
         return True
 
@@ -232,18 +310,22 @@ class CrosswordCreator:
         that rules out the fewest values among the neighbors of `var`.
         """
 
+        # Optimize: In order to sort by the less restrective value for var, we have to create multiple versions of self.domains with the slightly difference of var's domain.
+
         # Calculates the sumation of all variable's domain size
-        domains_len = lambda dom: sum(tuple(len(dom[neihgbour]) for neihgbour in neighbours))
-        
+        domains_len = lambda dom: sum(
+            tuple(len(dom[neihgbour]) for neihgbour in neighbours)
+        )
+
         # A copy of the original self.domains dict (so then we can modify and test other possible domains)
-        current_domains = self.domains.copy()  
-        
-        # Sumation of all variable's domain size  
+        current_domains = self.domains.copy() # <- do not modify
+
+        # Sumation of all variable's domain size
         current_domains_len = domains_len(current_domains)
 
         # Neighbouring variables
         neighbours = self.crossword.neighbors(var)
-    
+
         # We assume assignment is going to be provided as consistent (all variables in var's domain should return True when self.consistent)
         # In any case, all no consistent variables will belong to this set and thus them will be queued at the end the list returned by this function.
         no_consistent: set[Variable] = {}
@@ -251,19 +333,27 @@ class CrosswordCreator:
         # Contains the number or discarted values for neighbouring variables
         all_domains_len: dict[str, int] = {}
 
-        for value in self.domains[var]:
+        for value in current_domains[var]:
             self.domains = current_domains.copy()
             self.domains[var] = {value}
-            if not self.consistent():
-                no_consistent.add(value)
-                break
+
+            # TODO: Terminar consistent
+            
             all_domains_len[value] = current_domains_len - domains_len(self.domains)
-    
-        sorted_domains_len = [pair[1] for pair in quick_sort(list(all_domains_len.items()), get_value=lambda pair: pair[1], dir=ASC_SORT)]
+        self.domains = current_domains
+
+        sorted_domains_len = [
+            pair[1]
+            for pair in quick_sort(
+                list(all_domains_len.items()),
+                sort=lambda pair: pair[1],
+                dir=ASC_SORT,
+            )
+        ]
 
         return sorted_domains_len
 
-    def select_unassigned_variable(self, assignment):
+    def select_unassigned_variable(self, assignment: dict[Variable, str]):
         """
         Return an unassigned variable not already part of `assignment`.
         Choose the variable with the minimum number of remaining values
@@ -271,9 +361,35 @@ class CrosswordCreator:
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        raise NotImplementedError
 
-    def backtrack(self, assignment):
+        if self.assignment_complete(assignment):
+            raise ValueError("no unassigned values remaining in assignment")
+
+        # Unassigned variables, its domain len (remaining values), its degree (number of neighbours)
+        unassigned: list[tuple[Variable, int, int]] = []
+
+        for var in self.domains.keys():
+            if var in assignment.keys() or not len(self.domains[var]):
+                continue
+
+            unassigned.append(
+                (
+                    var,  # Variable
+                    len(self.domains[var]),  # Variable's domain len
+                    len(self.crossword.neighbors(var)),  #
+                )
+            )
+
+        # minimum remaining values y max degree sorting
+        sorted_unassigned = quick_sort(
+            quick_sort(unassigned, sort=lambda pair: pair[1], dir=ASC_SORT),
+            sort=lambda pair: pair[2],
+            dir=DESC_SORT,
+        )
+
+        return sorted_unassigned[0]
+
+    def backtrack(self, assignment: dict[Variable, str]):
         """
         Using Backtracking Search, take as input a partial assignment for the
         crossword and return a complete assignment if possible to do so.
@@ -282,6 +398,23 @@ class CrosswordCreator:
 
         If no assignment is possible, return None.
         """
+
+        if self.assignment_complete(assignment):
+            return assignment
+
+        # Selected variable
+        var = self.select_unassigned_variable()
+
+        for value in self.order_domain_values(var, assignment):
+            next_assignment = assignment.copy()
+            next_assignment[var] = value
+
+            self.consistent(next_assignment)
+
+            # FIXME: Ir order to check if problem (csp) is consistent, self.consistent function need to have into account the fact that assignment key pairs are in charge of aplying determinated arcs or constraints when selecting the valid values in the domain of each variable.
+
+            # if self.consistent(assignment):
+
         raise NotImplementedError
 
 
