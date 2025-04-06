@@ -316,7 +316,7 @@ Podemos definir el procedimiento de este algoritmo de la siguiente forma:
 
   - Sobre cada valor, verificamos si existe consitencia dentro del **assignment**.
 
-  > Supongo que mediante AC-3
+  > Mediante AC-3 y un algoritmo encargado de verificar todas las restricciones unitarias
 
   Si es consistente se añade al **assignment** y volvemos a ejecutar recursivamente el algoritmo `backtrack`.
 
