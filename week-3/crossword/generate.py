@@ -173,10 +173,36 @@ class CrosswordCreator:
         # Absolute position for variable overlap
         (i, j) = overlap
 
-        # Absolute J - variable's relative J, or
+        # Absolute J - variable's relative J or
         # Absolute I - variable's relative I
-        x_overlap_index = x.j - j if x.direction == Variable.ACROSS else x.i - i
-        y_overlap_index = x.j - j if x.direction == Variable.ACROSS else y.i - i
+        x_overlap_index = j - x.j if x.direction == Variable.ACROSS else i - x.i
+        y_overlap_index = j - y.j if x.direction == Variable.ACROSS else i - y.i
+
+        # FIXME: I have finaly reached to the conclusion by testin the utilities provided that `self.crossword.overlaps` is not correctly interpretin the structure files.
+
+        # In sake of debugging purposes
+        print(f"""
+                ## Variables' positions ##
+
+                x's pos: {(x.j, x.i)}
+                y's pos: {(y.j, y.i)}
+
+                ## Overlap indexes ##
+
+                (x, y) absolute pos overlap: {(j, i)}
+                x's overlap index: {x_overlap_index}
+                y's overlap index: {y_overlap_index}
+
+                ## Variables' domains ##
+                
+                x's domain: {self.domains[x]}
+                y's domain: {self.domains[y]}
+
+                ## Variables' direcion ##
+
+                x's dir: {"ACROSS" if x.direction == Variable.ACROSS else "DOWN"}
+                y's dir: {"ACROSS" if y.direction == Variable.ACROSS else "DOWN"}
+              """)
 
         # We copy the set structure since we are going to remove elements at the same time we iterate through
         x_domain = self.domains[x].copy()
@@ -188,9 +214,6 @@ class CrosswordCreator:
             # We iterate for each value of `y` to find a compatible value with `x`
             compatible_value = False
             for y_value in self.domains[y]:
-
-                # print(x_value[x_overlap_index], y_value[y_overlap_index])
-
                 if x_value[x_overlap_index] != y_value[y_overlap_index]:
                     continue
                 compatible_value = True
