@@ -2,6 +2,10 @@ import sys
 from crossword import *
 from typing import Any
 
+
+# FIXME: Parece haber un problema con las direcciones al momento de imprimir las variables
+
+
 DESC_SORT, ASC_SORT = 0, 1
 """quick_sort dir constant values"""
 
@@ -59,7 +63,7 @@ class CrosswordCreator:
             var: self.crossword.words.copy() for var in self.crossword.variables
         }
 
-    def letter_grid(self, assignment):
+    def letter_grid(self, assignment: dict[tuple[Variable, str]]):
         """
         Return 2D array representing a given assignment.
         """
@@ -151,9 +155,9 @@ class CrosswordCreator:
 
         for var in self.crossword.variables:
             for word in self.crossword.words:
-                if len(word) == var.length or word not in self.domains[var]:
+                if len(word) == var.length:
                     continue
-                self.domains[var].remove(word)
+                self.domains[var].discard(word)
 
     def revise(self, x: Variable, y: Variable):
         """
@@ -170,41 +174,9 @@ class CrosswordCreator:
         if overlap is None:  # No overlap means no arcs between
             return False
 
-        # Absolute position for variable overlap
+        # Each overlap consists of a tuple with the position at the variable's cells list
         (i, j) = overlap
 
-        # Absolute J - variable's relative J or
-        # Absolute I - variable's relative I
-        x_overlap_index = j - x.j if x.direction == Variable.ACROSS else i - x.i
-        y_overlap_index = j - y.j if x.direction == Variable.ACROSS else i - y.i
-
-        # FIXME: I have finaly reached to the conclusion by testin the utilities provided that `self.crossword.overlaps` is not correctly interpretin the structure files.
-
-        # In sake of debugging purposes
-        print(f"""
-                ## Variables' positions ##
-
-                x's pos: {(x.j, x.i)}
-                y's pos: {(y.j, y.i)}
-
-                ## Overlap indexes ##
-
-                (x, y) absolute pos overlap: {(j, i)}
-                x's overlap index: {x_overlap_index}
-                y's overlap index: {y_overlap_index}
-
-                ## Variables' domains ##
-                
-                x's domain: {self.domains[x]}
-                y's domain: {self.domains[y]}
-
-                ## Variables' direcion ##
-
-                x's dir: {"ACROSS" if x.direction == Variable.ACROSS else "DOWN"}
-                y's dir: {"ACROSS" if y.direction == Variable.ACROSS else "DOWN"}
-              """)
-
-        # We copy the set structure since we are going to remove elements at the same time we iterate through
         x_domain = self.domains[x].copy()
 
         # X domain was revised
@@ -214,7 +186,7 @@ class CrosswordCreator:
             # We iterate for each value of `y` to find a compatible value with `x`
             compatible_value = False
             for y_value in self.domains[y]:
-                if x_value[x_overlap_index] != y_value[y_overlap_index]:
+                if x_value[i] != y_value[j]:
                     continue
                 compatible_value = True
                 break
@@ -244,7 +216,7 @@ class CrosswordCreator:
         # filtered_arcs
         farcs = [arc for arc in arcs if self.crossword.overlaps[arc] is not None]
         # unordered_filtered_arcs
-        ufarcs = [set(arc) for arc in farcs]
+        # ufarcs = [set(arc) for arc in farcs]
 
         queue = farcs.copy()
         while len(queue) > 0:
@@ -256,9 +228,9 @@ class CrosswordCreator:
 
                 # If some values from x's domain were ruled out, then check arc consistency for each neighbor of x except of y and those that doesn't belong to `arcs`.
                 for z in self.crossword.neighbors(x):
-                    if z == y or {z, x} not in ufarcs:
+                    if z == y or (z, x) not in farcs:
                         continue
-                    queue.append((x, y))
+                    queue.append((x, z))
         return True
 
     def enforce_consistency(self, assignment: dict[Variable, str] = {}):
@@ -376,7 +348,7 @@ class CrosswordCreator:
             dir=ASC_SORT,
         )
 
-        sorted_vars = [var for (var) in sorted_domains_len] + list(no_consistent)
+        sorted_vars = [pair[0] for pair in sorted_domains_len] + list(no_consistent)
 
         return sorted_vars
 

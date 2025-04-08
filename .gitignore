@@ -2,6 +2,7 @@ data
 week-0/degrees/large
 week-0/degrees/small
 *dummy.py
+*.png
 bin
 myenv
 *.zip
