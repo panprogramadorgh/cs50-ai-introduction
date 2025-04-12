@@ -1,4 +1,4 @@
-# Lecture 4
+# Lecture 4 — Machine Learning
 
 A lo largo de este curso hemos etado viendo como dar instrucciones a un agente de IA para dar dar soluciones de a problemas como punto de entrada.
 
@@ -34,9 +34,9 @@ Tareas en `supervised learning`:
 
   En el anterior ejemplo de prediccion meteorologica, dos valores de entrada diferentes (humedad y presion) eran pasados a la tarea de clasificacion.
 
-  - **Rojo**: Dias sin lluvia
+  - **Rojo** — Dias sin lluvia
 
-  - **Azul**: Dias con lluvia
+  - **Azul** — Dias con lluvia
 
   ![two-dimension-input-plot-example](./imgs/two-dimension-input-plot-example.png)
 
@@ -48,8 +48,18 @@ Tareas en `supervised learning`:
 
   ### Classification techniques
 
-  - **neaest-neighbour**: La funcion de clasificacion etiqueta la entrada de la misma forma que lo hico el `data point` mas cercano (valores de entrada mas parecidos).
+  - **neaest-neighbour** — La funcion de clasificacion etiqueta la entrada de la misma forma que lo hico el `data point` mas cercano (valores de entrada mas parecidos).
 
-  - **$k$-nearest-neighbour**: En ocasiones es demasiado determinante generar una clasificacion fijandonos solamente en un `data point`, por eso mismo, esta variante tiene en cuenta $k$ nodos mas cercanos.
+  - **$k$-nearest-neighbour** — En ocasiones es demasiado determinante generar una clasificacion fijandonos solamente en un `data point`, por eso mismo, esta variante tiene en cuenta $k$ nodos mas cercanos.
 
     > Probablemente seria el mas indicado a utilizar en el problema de clasificacion meteorologica.
+
+    En `machine learning` existen un monton de algoritmos diferentes encargados de realizar este proceso de clasificacion y por lo general daremos con la situacion de que algunos se desenvolveran mejor ante ciertas situacion en comporacion con otros y viceversa.
+
+  - **linear regression**:
+
+    Si bien podemos emplear ciertos razonamientos / heuristicas para obtener el valor mas optimo de $k$, asi como los nodos vecinos mas determinantes y podar aquellos que solamente suponen un lastre computacinoal, podemos cambiar de enfoque de base al momento de clasificar los `data entry` en el plot.
+
+    En el mismo grafico bidimensional donde se toman los valores para la presion y humedad (dos dimensiones / parametros) podemos dibujar un limite que separa los dias de lluvia de los dias sin lluvia.
+
+    ![linear-regression-plot](./imgs/linear-regression-plot.png)
