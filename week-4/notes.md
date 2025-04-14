@@ -8,15 +8,19 @@ El concepto de `machine laerning` es muy amplio, en primer lugar revisaremos alg
 
 # Supervised Learning
 
-Dado un conjunto de datos, se asocia un valor/s de entrada a un valor de salida en forma de par, `supervised learning` consiste en aprender una funcion de prediccion sobre la salida generada dada una determinada entrada.
+Dado un conjunto de datos de entrenamiento, donde se asocia un valor/es de entrada a un valor de salida en forma de par, `supervised learning` consiste en enseñar / entrenar un modelo de prediccion sobre la salida generada para una nueva entrada nunca vista y por lo tanto no presente en los datos de entrenamiento para tal modelo.
 
 # Classification
 
-Consiste en la tarea de hacer aprender una funcion de clasificacion de datos de entrada en categorias.
+Consiste en la tarea de clasificar el valor de salida predecido por un modelo previamente entrenado. En otras palabras, dados los datos de entrada provistos al modelo, analizaremos la salida y sacaremos conclusiones sobre cual es el nombre de clase adecuado para dicha entrada (posteriormente materializaremos el concepto de clasificacion mas / menos acertada).
 
-Imagina la situacion donde tenemos que averiguar la autenticidad de un billete. Podriamos clasificar el billete como "falso" o "verdadero" (al haber una cantidad delimitada de clases y existir una probabilidad para cada una de ellas, estamos hablando de valores discretos)
+De manera introductoria a este concepto de clasificacion y de acuerdo para simplificar las ideas, tendremos en cuenta escenarios de clasificacion binarios (los valores de entrada han de ser clasificados de acuerdo a dos posibles etiquetas)
 
-Siguiendo con este concepto de clasificacion, otro buen ejemplo a considerar seria el de la prediccion del tiempo. De manera semejante a los modelos probabilisticos (digase supuestos de markov y tal vez modelos sensor), hay un trabajo de inferencia dadas una observaciones. A traves de una serie de **patrones implicitos en los datos provistos**, un algoritmo de clasificacion es capaz de etiquetar ciertos escenarios.
+### Ejemplos de problemas de clasificacion binarios:
+
+- **Billetes** — Buscamos averiguar la autenticidad de un billete. Podriamos clasificar el billete como "falso" o "verdadero" (al haber una cantidad limitada de clases, estamos hablando de valores discretos)
+
+- **Meteorologia** — Tal y como estuvimos viendo en las anteriores lecciones, de manera semejante a los modelos probabilisticos (digase supuestos de markov y tal vez modelos sensor), hay un trabajo de inferencia dadas unas observaciones. A traves de una serie de **patrones implicitos en los datos provistos**, un algoritmo de clasificacion es capaz de etiquetar ciertos escenarios.
 
 ![observated-data-classification](./imgs/observated-data-classification.png)
 
@@ -28,7 +32,7 @@ O... lo que es igual — aunque desde una perspectiva mas matematica:
 
 Realmente no sabemos a ciencia cierta la salida de la funcion $f(...)$, pero si podemos generar un resultado estimado con una funcion $h(...)$.
 
-Una forma razonable en la que podriamos ver los valores de salida generados para la `classification task` seria a traves de un grafico de $n$ dimensiones, donde cada dimension es un valor de entrada para la tarea de clasificacion ($f(...)$).
+Una forma razonable en la que podriamos ver los datos de entrenamiento para un modelo asi como las clasificaciones arrojadas por el mismo (especialmente si estamos hablando de funciones clasificadoras bidimensionales), seria a traves de un grafico o plot. Decimos que una tarea de clasificacion presenta $n$ dimensiones, siendo cada dimensio un valor de entrada para la funcion $h(...)$.
 
 En el anterior ejemplo de prediccion meteorologica, dos valores de entrada diferentes (humedad y presion) eran pasados a la tarea de clasificacion.
 
@@ -46,7 +50,7 @@ Por pura intuicion, podriamos decir que el punto azul claro debe ser clasificado
 
 ## Classification techniques
 
-- **neaest-neighbour** — La funcion de clasificacion etiqueta la entrada de la misma forma que lo hico el `data point` mas cercano (valores de entrada mas parecidos).
+- **neaest-neighbour** — La funcion de clasificacion etiqueta la entrada de la misma forma que lo hizo el `data point` mas cercano (valores de entrada mas parecidos).
 
 - **$k$-nearest-neighbour** — En ocasiones es demasiado determinante generar una clasificacion fijandonos solamente en un `data point`, por eso mismo, esta variante tiene en cuenta $k$ nodos mas cercanos.
 
