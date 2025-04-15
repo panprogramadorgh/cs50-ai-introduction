@@ -16,7 +16,7 @@ Consiste en la tarea de clasificar el valor de salida predecido por un modelo pr
 
 De manera introductoria a este concepto de clasificacion y de acuerdo para simplificar las ideas, tendremos en cuenta escenarios de clasificacion binarios (los valores de entrada han de ser clasificados de acuerdo a dos posibles etiquetas)
 
-### Ejemplos de problemas de clasificacion binarios:
+### Examples of Binary Clasification Problems
 
 - **Billetes** — Buscamos averiguar la autenticidad de un billete. Podriamos clasificar el billete como "falso" o "verdadero" (al haber una cantidad limitada de clases, estamos hablando de valores discretos)
 
@@ -50,17 +50,21 @@ Por pura intuicion, podriamos decir que el punto azul claro debe ser clasificado
 
 ## Classification techniques
 
-- **neaest-neighbour** — La funcion de clasificacion etiqueta la entrada de la misma forma que lo hizo el `data point` mas cercano (valores de entrada mas parecidos).
+- **neighbouring data points classification algorithms**:
 
-- **$k$-nearest-neighbour** — En ocasiones es demasiado determinante generar una clasificacion fijandonos solamente en un `data point`, por eso mismo, esta variante tiene en cuenta $k$ nodos mas cercanos.
+  Hasta el momento hemos visto la clasificacion desde una perspectiva en el calculo de **regresion lineal** (dot product) y por lo tanto en algoritmos de clasificacion como **regresion logistica** (mas adelante veremos en detalles como funcionan). Sin embargo, cabe destacar que existen otros dos mecanismos que toman un enfoque diferente y algo mas simplificado.
 
-  > Probablemente seria el mas indicado a utilizar en el problema de clasificacion meteorologica.
+  - **neaest-neighbour** — La funcion de clasificacion etiqueta la entrada de la misma forma que lo hizo el `data point` mas cercano (valores de entrada mas parecidos).
 
-  En `machine learning` existen un monton de algoritmos diferentes encargados de realizar este proceso de clasificacion y por lo general daremos con la situacion de que algunos se desenvolveran mejor ante ciertas situacion en comporacion con otros y viceversa.
+  - **$k$-nearest-neighbour** — En ocasiones es demasiado determinante generar una clasificacion fijandonos solamente en un `data point`, por eso mismo, esta variante tiene en cuenta $k$ nodos mas cercanos.
 
-- **linear regression**
+    > Probablemente el mas indicado de los dos a emplear en el problema de clasificacion meteorologica.
 
-  Si bien podemos emplear ciertos razonamientos / heuristicas para obtener el valor mas optimo de $k$, asi como los nodos vecinos mas determinantes y podar aquellos que solamente suponen un lastre computacinoal, podemos cambiar de enfoque de base al momento de clasificar los `data entry` en el plot.
+  Segun vayamos descubriendo nuevos algoritmos clasificatorios en este campo del aprendizaje automatico y vayamos topandonos con nuevos problemas, se reforzara la idea que ciertos algoritmos se desenvolveran mejor ante ciertas situacion en comporacion con otros y viceversa.
+
+- **linear regression based clasification algorithms**:
+
+  Si bien podemos emplear ciertos razonamientos / heuristicas para obtener el valor mas optimo de $k$, asi como los nodos vecinos mas determinantes y podar aquellos que solamente suponen un lastre computacional, podemos cambiar de enfoque integralmente al momento de clasificar los `data entry` en el plot.
 
   En el mismo grafico bidimensional donde se toman los valores para la presion y humedad (dos dimensiones / parametros) podemos dibujar un limite que separa los dias de lluvia de los dias sin lluvia.
 
@@ -70,7 +74,17 @@ Por pura intuicion, podriamos decir que el punto azul claro debe ser clasificado
 
   ![unperfect-linear-regression-plot](./imgs/unperfect-linear-regression-plot.png)
 
-## How Linear Regression Works
+  ### Graphical Explanation Aside
+
+      - Las presentes representaciones graficas tratan de explicar el concepto de clasificacion desde la perspectiva de un `data point` en un lado u otro de la linea (como la posicion en el espacio bidimensional para dicha entrada termina repercutiendo en su nombre de clase); sin embargo, no es necesariamente aplicable al concepto de `linear regression`.
+
+      - La regresion lineal da lugar a la prediccion de valores numericos continuos y estos han de ser clasificados mediante algoritmos oportunos, tales como `logical regression`.
+
+      - La regresion logistica da cabida a clasificacion por probabilidades; sin embargo, tal y como muestran tales representaciones graficas, solamente estamos verificando si el `data point` se encuentra a un lado u otro de la linea.
+
+      - Por todo este razonamiento es por el que podemos concluir que, probablemente la forma mas adecuada de categorizar este metodo de clasificacion segun las imagenes es: como un algoritmo de `support vector machines` (SVM) donde dicha linea delimitadora busca maximizar el espacio entre los soportes vectoriales (los nodos de cada clasificacion mas cercanos a la linea).
+
+## Implement Liner Regression
 
 Podemos ver `linear regression` desde una perspectiva mas matematica. Digamos que vamos a darle un nombre a cada uno de los parametros de nuestra `hypothesis function` $h$:
 
@@ -78,26 +92,28 @@ Podemos ver `linear regression` desde una perspectiva mas matematica. Digamos qu
 
 - $x_2$ — Pressure
 
-El objetivo de $h$ por lo tanto, consiste en averiguar si sus valores de entrada ($x_1$ y $x_2$) estan en el lado de la linea delimitadora correspondiente a los dias de lluvia, o mas bien en el lado en el que no.
+El objetivo de $h$ por lo tanto, consiste en obtener un valor de salida desde ambos parametros de entrara para posteriormente ser clasificado.
 
-De acuerdo para formalizar la linea delimitadora hemos de constituir una combinacion lineal de ambos parametros de entrada con un peso $w_n$; siendo este proporcional a la relevancia de cada uno de estos parametros para lograr el resultado.
+Crearemos una combinacion lineal de ambos parametros de entrada con un peso $w_n$, siendo este proporcional a la relevancia de cada uno de estos parametros para lograr el resultado.
 
 Rain if $\ \ \ \ w_0 + x_1w_1 + x_2w_2\ >=\ 0\\$
 No Rain $\ \ otherwise$
 
-Los pesos $w$ son constantes y van a darle forma y pendiente a la linea; por lo tanto, la clave en este tipo de algoritmos de `machine learning` consiste en dar con los pesos $w$ lo mas precisos posibles, de manera que $h$ arroje buenas clasificaciones.
+Los pesos $w$ son constantes y su valor es determinante; pues los valores de salida arrojados seran clasificados posteriormente. Por este motivo el vector de pesos ha de estar meticulosamente entrenado.
 
-Por lo general (especialmente cuando hablamos de tareas de clasificacion con cientos o miles de parametros) las representaciones matematicas de este concepto se llevan a cabo con vectores (o ristras de valores).
+Por lo general (especialmente cuando hablamos de tareas de clasificacion con cientos o miles de parametros) las representaciones matematicas de este concepto se llevan a cabo con vectores.
 
 - Weights (**W**) — $<w_0, w_1, w_2>$
 
 - Inputs (**X**) — $<1, x_1, x_2>$
 
-Entonces para llegar a la misma conclusion sobre la lluvia, hemos de aplicar una multiplicacion de vectores o `dot product` entre ambos.
+Calcularemos el `dot product` entre ambos vectores:
 
 **W · X** $\ =\ (w_0 * 1) + (w_1 * x_1) + (w_2 * x_2)$
 
-> El motivo por el que el vector `inputs` comienza por $1$, es porque para poder hacer la multiplicacion de vectores necesitamos que sean de la misma longitud. $w_0$ lo empleamos en caso de que un desplazamiento en la ecuacion sea necesario.
+De la misma forma que hicimos antes, simplemente habria que verificar si **W · X** es mayor o menor que $0$ (simplemente es otra forma de representar matematicamente la misma idea).
+
+> El motivo por el que el vector `inputs` comienza por $1$, es porque para poder hacer la multiplicacion de vectores necesitamos que sean de la misma longitud. $w_0$ lo empleamos como un valor esporadico de desplazamiento.
 
 Por ultimo tambien cabe destacar que para codificar cada una de las clasificaciones, es muy comun emplear numeros enteros
 
@@ -106,6 +122,8 @@ Por ultimo tambien cabe destacar que para codificar cada una de las clasificacio
 - No Rain — $0$
 
 ![linear-regression-hypothesis-function-maths](./imgs/linear-regression-hypothesis-function-maths.png)
+
+En este caso estamos empleando regresion lineal como base a probablemente el metodo de clasificacion mas sencillo que podemos utilizar. Simplemente verificamos si el `dot product` entre el vector de los `inputs` y el de los `weights` sobrebasa un limite fijo establecido ($0$ en este caso), en cuyo caso consideramos que es un dia lluvioso (esto es lo que conocemos como hard threshold).
 
 ### Perceptron Learning Rule
 
@@ -127,15 +145,13 @@ Hasta el momento hemos estado dando por hecho que disponemos del vector **W** co
 
 - _valor de input_ — $x_n$
 
-- _valor de input_ — $x_n$
-
 - _ratio de aprendizaje_ — $ɑ$
 
 - _valor real_ — $y$ — valor asociado a data point **X** en datos de entrenamiento del modelo
 
 - _valor estimado_ — $h_w($**X**$)$
 
-> Para _valor real_ y _valor estimado_ es fundamental que que las clasificaciones este asociadas a un valor numerico, de tal manera que podemos calcular la diferencia.
+> Para _valor real_ y _valor estimado_ es fundamental que que las clasificaciones esten asociadas a un valor numerico, de tal manera que podemos calcular la diferencia.
 
 ![perceptron-learning-rule](./imgs/perceptron-learning-rule.png)
 
@@ -149,6 +165,6 @@ Este metodo es simple de aplicar aunque tiene ciertas limitaciones en:
 
 - Graduabilidad (no hay probabilidades; blanco o negro)
 
-Los limites suaves o `soft threholds` pertimen graduacion entre las clasificaciones (valores en forma de numeros reales), dondo entrada al concepto de probabilidad.
+Verdaderos algoritmos de  clasificacion como `logical regression` permiten limites suaves o `soft threholds`; estos dan la posibilidad de graduacion entre las clasificaciones (valores en forma de numeros reales), dondo entrada al concepto de probabilidad.
 
 ![soft-threshold-classification-plot](./imgs/soft-threshold-classification-plot.png)
