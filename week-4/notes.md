@@ -10,9 +10,11 @@ El concepto de `machine laerning` es muy amplio, en primer lugar revisaremos alg
 
 Dado un conjunto de datos de entrenamiento, donde se asocia un valor/es de entrada a un valor de salida en forma de par, `supervised learning` consiste en enseñar / entrenar un modelo de prediccion sobre la salida generada para una nueva entrada nunca vista y por lo tanto no presente en los datos de entrenamiento para tal modelo.
 
+A continuacion revisaremos algunas **tareas con las que nos podemos topar** en `supervised learning` ...
+
 # Classification
 
-Consiste en la tarea de clasificar el valor de salida predecido por un modelo previamente entrenado. En otras palabras, dados los datos de entrada provistos al modelo, analizaremos la salida y sacaremos conclusiones sobre cual es el nombre de clase adecuado para dicha entrada (posteriormente materializaremos el concepto de clasificacion mas / menos acertada).
+Consiste en la tarea de clasificar el valor de salida predicho por un modelo previamente entrenado. En otras palabras, dados los datos de entrada provistos al modelo, analizaremos la salida y sacaremos conclusiones sobre cual es el nombre de clase adecuado para dicha entrada (posteriormente materializaremos el concepto de clasificacion mas / menos acertada).
 
 De manera introductoria a este concepto de clasificacion y de acuerdo para simplificar las ideas, tendremos en cuenta escenarios de clasificacion binarios (los valores de entrada han de ser clasificados de acuerdo a dos posibles etiquetas)
 
@@ -76,13 +78,11 @@ Por pura intuicion, podriamos decir que el punto azul claro debe ser clasificado
 
   ### Graphical Explanation Aside
 
-      - Las presentes representaciones graficas tratan de explicar el concepto de clasificacion desde la perspectiva de un `data point` en un lado u otro de la linea (como la posicion en el espacio bidimensional para dicha entrada termina repercutiendo en su nombre de clase); sin embargo, no es necesariamente aplicable al concepto de `linear regression`.
+      - Las presentes representaciones graficas tratan de explicar el concepto de prediccion de una clasificacion desde la perspectiva de un `data point` en un lado u otro de la linea (como la posicion en el espacio bidimensional para dicha entrada termina repercutiendo en su nombre de clase); sin embargo, no es necesariamente aplicable al concepto de `linear regression`.
 
-      - La regresion lineal da lugar a la prediccion de valores numericos continuos y estos han de ser clasificados mediante algoritmos oportunos, tales como `logical regression`.
+      - La regresion lineal da lugar a la prediccion de valores numericos continuos, no la de clases. Estos valores numericos han de ser clasificados mediante algoritmos oportunos, tales como `logical regression` o `softmax regression` si se busca un enfoque multiclase.
 
-      - La regresion logistica da cabida a clasificacion por probabilidades; sin embargo, tal y como muestran tales representaciones graficas, solamente estamos verificando si el `data point` se encuentra a un lado u otro de la linea.
-
-      - Por todo este razonamiento es por el que podemos concluir que, probablemente la forma mas adecuada de categorizar este metodo de clasificacion segun las imagenes es: como un algoritmo de `support vector machines` (SVM) donde dicha linea delimitadora busca maximizar el espacio entre los soportes vectoriales (los nodos de cada clasificacion mas cercanos a la linea).
+      - Por todo este razonamiento es por el que podemos concluir que, probablemente la forma mas adecuada de categorizar este metodo de clasificacion segun las imagenes es: como un algoritmo de `support vector machines` (SVM) donde dicha linea delimitadora busca maximizar el espacio entre los soportes vectoriales (los puntos de datos de cada clasificacion mas cercanos a la linea).
 
 ## Implement Liner Regression
 
@@ -98,6 +98,8 @@ Crearemos una combinacion lineal de ambos parametros de entrada con un peso $w_n
 
 Rain if $\ \ \ \ w_0 + x_1w_1 + x_2w_2\ >=\ 0\\$
 No Rain $\ \ otherwise$
+
+> $>= 0$ es probablemente el metodo de clasificacion mas simple que podemos emplear (proximamente exploraremos metodos de clasificacion mas sofisticados, ya sea basados o no en regresion lineal).
 
 Los pesos $w$ son constantes y su valor es determinante; pues los valores de salida arrojados seran clasificados posteriormente. Por este motivo el vector de pesos ha de estar meticulosamente entrenado.
 
@@ -155,9 +157,17 @@ Hasta el momento hemos estado dando por hecho que disponemos del vector **W** co
 
 ![perceptron-learning-rule](./imgs/perceptron-learning-rule.png)
 
-Actualmente estamos planteando la clasificacion con un limite muy agresivo (llueve si **W**$\ *\ $**X**$\ >=\ 0$). Esto es lo que se conoce como `hard threshold` y su representacion grafica se ve de la siguiente manera:
+## Classify with Linear Regression
+
+Actualmente estamos planteando la clasificacion desde la perspectiva de:
+
+- Hard tresholds (limites no progresivos)
+
+- Solo dos clases (llueve o no llueve)
 
 ![hard-threshold-classification-plot](./imgs/hard-threshold-classification-plot.png)
+
+> **W**$\ *\ $**X**$\ >=\ 0$
 
 Este metodo es simple de aplicar aunque tiene ciertas limitaciones en:
 
@@ -165,6 +175,70 @@ Este metodo es simple de aplicar aunque tiene ciertas limitaciones en:
 
 - Graduabilidad (no hay probabilidades; blanco o negro)
 
-Verdaderos algoritmos de  clasificacion como `logical regression` permiten limites suaves o `soft threholds`; estos dan la posibilidad de graduacion entre las clasificaciones (valores en forma de numeros reales), dondo entrada al concepto de probabilidad.
+Verdaderos algoritmos de clasificacion como `logical regression` permiten limites suaves o `soft threholds`; estos dan la posibilidad de graduacion entre las clasificaciones (valores en forma de numeros reales), dondo entrada al concepto de probabilidad.
 
 ![soft-threshold-classification-plot](./imgs/soft-threshold-classification-plot.png)
+
+Por otra parte, para menajar escenarios multiclase donde tal vez podemos clasificar los puntos de datos de cientos de formas, existen otros algoritmos como `softmax regression` o `one-vs-rest`.
+
+## Support Vector Machines
+
+Consiste en un algoritmo de clasificacion basado en la definicion de lineas delimitadoras en el espacio de $n$ dimensiones.
+
+> Es importante no confundirlo con algoritmos de clasificacion basados en regresion lineal. Aqui no estamos clasificando el `dot product` entre un vector de datos de entrada y un vector de pesos; en su lugar estamos definiendo una linea en el espacio con posicion e inclinacion estrategicas con el objetivo de separar las entradas de datos. Estamos detectando un patron de comportamiento entre las clasificaciones pues estas tienen una tendencia a ubicarse de una determinada manera en el espacio, no es pura entropia.
+
+Aqui tenemos un ejemplo grafico de una linea delimitadora poco precisa generada por una maquina de soporte vectorial.
+
+![support-vector-machine-adjusted-line](./imgs/support-vector-machine-adjusted-line.png)
+
+Al momento de clasificar, realmente dicha linea va hacer bien el trabajo siempre y cuando no proporcionemos datos nuevos; es decir, datos no incluidos como parte del entrenamiento del modelo que la ha generado.
+
+Los problemas al momento de predecir clasificaciones mas bien comienzan cuando entregamos al modelo datos de entrada nunca vistos; en otras palabras, el modelo no ha calibrado correctamente la linea delimitadora.
+
+![support-vector-machine-wrong-prediction](./imgs/support-vector-machine-wrong-prediction.png)
+
+Tal vez aquellos nuevos puntos de datos tendrian que haber sido clasificados en rojo, aunque en este caso por un fallo de precision en la linea delimitadora, son considerados como azul.
+
+Con todo esto llegamos a la conclusion de que el objetivo y al fin y al cabo la calidad de un algoritmo de maquina de soporte de vectores radica en lo que conocemos como `maximum margin separator`.
+
+![maximum-margin-separator](./imgs/maximum-margin-separator.png)
+
+Incluyendo el mayor margen posible entre los soportes vectoriales (puntos de datos de cada clasificacion mas cercanos a la linea) conseguimos generalizar los escenarios y evitar descompensaciones en la clasificacion.
+
+![support-vector-machine-perfect-line](./imgs/support-vector-machine-perfect-line.png)
+
+Como bien hemos mencionado con anterioridad, este algoritmo de clasificacion no es solo aplicable a planos de dos dimensiones, tambien es aplicable a un hiperplano de $n$ dimensiones.
+
+`SVM` es ideal en escenarios donde trabajamos con datos linealmente no separables gracias a [mecanismos como los kernels](https://codatalicious.medium.com/kernels-ee967067aa9).
+
+![mecanismos como los kernels](./imgs/not-linearly-separable-data-set.png)
+
+# Regression
+
+Se trata de otra tarea con la que podriamos llegar a toparnos en `supervised learning` y consiste en asociar un punto de entrada de datos a un valor numerico continuo como salida. Se diferencia con respecto a una tarea de clasificacion en que no buscamos predecir categorias discretas (llueve o no llueve), en su lugar, y por lo general, predecimos valores numericos.
+
+Como ejemplo podemos pensar en una compañia que quiere maximizar sus ventas y conocer un valor estimado sobre como repercute en sus ventas el gasto en publicidad.
+
+![sales-estimation-function-given-adversiting](./imgs/sales-estimation-function-given-adversiting.png)
+
+Tal y como se ha comentado anteriormente, la regresion lineal es un mecanismo predictivo para valores numericos. Por tanto y demas, para generar tal estimacion sobre las ventas (dado el gasto en publicidad), podemos seguir un enfoque de regresion lineal con vectores de pesos entrenados $w_n$ por medio de tecnicas como `perceptron learning rule`.
+
+En las representaciones graficas bidimensionales de regresion, la linea trazada, en el fondo es generada por un vector de pares $x,y$; donde $x$ es el valor de entrada para $h_w$ e $y$ el valor predicho / su salida (advertising, sales).
+
+![sales-advertising-regression](./imgs/sales-advertising-regression.png)
+
+# Evaluating Hypothesis
+
+Hasta el momento hemos estado viendo como generar hipotesis mediante diferentes algoritmos en aprendizaje automatico; sin embargo, no sabemos a ciencia cierta que tan buenas son estas predicciones.
+
+## Loss Function
+
+Consiste en un mecanismo para expresar que tan "pobres" son las predicciones generadas por nuestra funcion de hipotesis $h$.
+
+> Codificar una buena funcion de perdida es fundamental para un posterior ejercicio de minimizacion sobre nuestra funcion de prediccion.
+
+Existen multitud de enfoques para codificar estas `loss functions` o funciones de perdida.
+
+- **0-1 loss function** — Especialmente utiles cuando queremos evaluar una funcion de prediccion de clases discretas. Si el valor real es igual a la prediccion, la funcion de perdida no suma puntos; por el contrario si.
+
+![01-loss-functio](./imgs/01-loss-function.png)
