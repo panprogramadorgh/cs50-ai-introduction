@@ -239,6 +239,28 @@ Consiste en un mecanismo para expresar que tan "pobres" son las predicciones gen
 
 Existen multitud de enfoques para codificar estas `loss functions` o funciones de perdida.
 
-- **0-1 loss function** — Especialmente utiles cuando queremos evaluar una funcion de prediccion de clases discretas. Si el valor real es igual a la prediccion, la funcion de perdida no suma puntos; por el contrario si.
+- **0-1 loss function** — Especialmente utile cuando queremos evaluar una funcion de prediccion de clases discretas. Si el valor real es igual a la prediccion, la funcion de perdida no suma puntos; por el contrario si.
 
-![01-loss-functio](./imgs/01-loss-function.png)
+  ![01-loss-functio](./imgs/01-loss-function.png)
+
+- $L_1$ **loss function** — Aplicable a escenarios de regresion, esta funcion de perdida evalua que tan cerca una prediccion se quedo con respecto al valor real. La funcion simplemente calcula el valor absoluto entre la realidad y el valor estimado $|\ real - estimado\ |$.
+
+  Para saber a ciencia cierta la precision de nuestra funcion de prediccion se toman como referencia varios puntos de datos, se calcula el valor absoluto para cada prediccion con respecto a la realidad y los resultados se suman para finalmente obtener el resultado de la funcion de perdida y juzgar que tan buena es nuestra funcion de prediccion $h$.
+
+  ![l1-loss-function](./imgs/l1-loss-function.png)
+
+  Desde una perspectiva grafica, la funcion de coste estaria midiendo la longitud de cada una de las barras, es decir, la desviacion con respecto a la realidad.
+
+  ![l1-loss-function-plot](./imgs/l1-loss-function-plot.png)
+
+- $L_2$ **loss function** — Muy similar a la anterior en el sentido en el que medimos la distancia entre el valor real y el estimado, con la diferencia de que los errores son potenciados al cuadrado.
+
+  ![l2-loss-function](./imgs/l2-loss-function.png)
+
+  > Las perdidas no son proporcionales a la distancia. Ademas, el motivo por el que no calculamos la potencia sobre el valor absoluto es porque cualquier potencia con un exponente multiplo de 2 da como resultado un numero mayor que 0.
+
+## Overfitting
+
+Hasta ahora hemos estado preocupandonos por que tan precisa era la funcion de prediccion sobre los datos de entrenamiento para el modelo; sin embargo, minimizar tanto como sea posible una funcion de perdida puede derivar en un problema muy comun en aprendizaje automatico conocido como `overfitting`.
+
+Si bien nuestra funcion de prediccion ha de hacer correctamente su trabajo arrojando buenas predicciones, es importante tener cierto grado de tolerancia ante errores. `overfitting` consiste en sobre entrenar un modelo y perder generalidad. Ya sea que estamos hablando de una funcion de regresion o clasificacion, debe existir cierto nivel de adaptacion ante nuevos datos (datos que no fueron parte del entrenamiento).
