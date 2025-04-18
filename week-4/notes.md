@@ -264,3 +264,31 @@ Existen multitud de enfoques para codificar estas `loss functions` o funciones d
 Hasta ahora hemos estado preocupandonos por que tan precisa era la funcion de prediccion sobre los datos de entrenamiento para el modelo; sin embargo, minimizar tanto como sea posible una funcion de perdida puede derivar en un problema muy comun en aprendizaje automatico conocido como `overfitting`.
 
 Si bien nuestra funcion de prediccion ha de hacer correctamente su trabajo arrojando buenas predicciones, es importante tener cierto grado de tolerancia ante errores. `overfitting` consiste en sobre entrenar un modelo y perder generalidad. Ya sea que estamos hablando de una funcion de regresion o clasificacion, debe existir cierto nivel de adaptacion ante nuevos datos (datos que no fueron parte del entrenamiento).
+
+Hasta el momento nuestro unico criterio como funcion de coste para hypothesis era la funcion de perdia, de echo eran dos terminos indistintos; motivo por el cual eventualmente hypothesis generaria predicciones con `overfitting` sobre los datos de entrenamiento.
+
+## Regularization
+
+La solucion a este problema, por lo tanto, radica en favorecer las funciones de prediccion que impliquen baja complejidad. Si consiguieramos codificar un mecanismo que cuantifique que tan compleja es hypothesis, podriamos inflar su coste y hacerla menos atractiva.
+
+![new-cost-function-for-hypothesis](./imgs/new-cost-function-for-hypothesis.png)
+
+Adicionalmente podemos agregar un factor lambda a la complejidad, agravando la penalizacion.
+
+## Holdout cross-validation
+
+Consiste en un mecanismo para medir que tan generica es una funcion de prediccion. Se basa en la idea de dividir los datos en entrenamiento y testing. Tras entrenar al modelo, se evalua su capacidad a la hora de generar predicciones sobre los datos de testing, que nunca formaron parte del entrenamiento.
+
+![holdout-cross-validations](./imgs/holdout-cross-validation.png)
+
+## $k$-fold cross-validation
+
+Si bien con `holdout cross-validation` podemos elegir que cantidad de los datos sera empleada para entrenamiento y que cantidad para testing, es sustancial considerar que a traves de este proceso estamos sacrificando:
+
+1. **Datos de entrenamiento para el modelo** — Como consecuencia de no entrenar suficientemente al modelo, es altamente probable que estemos juzgando incorrectamente su capacidad predictiva.
+
+2. **Datos de testing** — Una solucion intuitiva al disponer de pocos datos en el entrenamiento puede ser reducir los datos de testing, sin embargo volvemos a encontrarnos con el mismo problema, muy probablemente estemos juzgando incorrectamente las capacidades del modelo.
+
+`k-fold cross-validation` plantea dividir los datos en $k$ subconjuntos, elegir arbitrariamente entre uno de los subconjuntos de tamaño $\frac{1}{k}$ para testing ($\frac{k-1}{k}$ como entrenamiento) y repetir el mismo procedimiento rotando de subconjunto elegido.
+
+Este enfoque permite un mayor aprovechamiento de los datos en terminos de entrenamiento y testing mitigando los problemas descritos mediante el factor rotativo.
