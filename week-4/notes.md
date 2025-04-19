@@ -292,3 +292,37 @@ Si bien con `holdout cross-validation` podemos elegir que cantidad de los datos 
 `k-fold cross-validation` plantea dividir los datos en $k$ subconjuntos, elegir arbitrariamente entre uno de los subconjuntos de tamaño $\frac{1}{k}$ para testing ($\frac{k-1}{k}$ como entrenamiento) y repetir el mismo procedimiento rotando de subconjunto elegido.
 
 Este enfoque permite un mayor aprovechamiento de los datos en terminos de entrenamiento y testing mitigando los problemas descritos mediante el factor rotativo.
+
+# Reinforcement Learning
+
+Consiste en otro tipo de aprendizaje popular en `machine learning` basado en el concepto de **recompensa** y **castigo** (imagina numeros enteros). Un agente entrenado con `reinforcement learning` toma buenas decisiones gracias a experiencias pasadas, pues este conoce como actuar y como no hacerlo.
+
+Asi es como se ve a grandes rasgos el flujo de trabajo de un agente de `reinforcemenet learning`.
+
+- El agente percibe informacion sobre su entorno (estado)
+
+- Bajo la experiencia actual del agente este toma una decision (accion sobre el estado)
+
+- Ha consecuencia de haber tomado tal accion, el estado se ve actualizado y agente recibe una recompensa (o castigo si esta es materializada en forma de un numero negativo)
+
+![reinforcement-learning-workflow](./imgs/reinforcement-learning-workflow.png)
+
+## Markov Decision Process
+
+Consiste en un modelo de `reinforcement learning` encargado materializar los conceptos de estado, acciones, toma de decisiones y recompensas.
+
+Anteriormente cubrimos el concepto de `markov chains` donde una cantidad finita de estados pasados, y por medio de una base puramente probabilistica, eramos capaces de predecir estados futuros. `markov decision process` alude al anterior nombre porque tambien representa una nocion de estados encadenados, con la gran diferencia de que desde un estado disponemos de **multiples acciones** y la toma de decisiones se basa en la **experiencia del agente** mas que solo en un factor probabilistico. Tras tomar una determinada decision sobre un estado, una funcion de recompensa analiza exhaustivamente los resultados de acuerdo para calcular la **recompensa** asignada a tal decision; el agente en consecuencia tiene en cuenta la evualuacion de su trabajo y **aprende** para futuras ocasiones.
+
+![markov-decision-process](./imgs/markov-decision-process.png)
+
+> Diagrama simplificado.
+
+Todo modelo `markov decision process` codifica la idea de un:
+
+- **Conjunto de estados** — $S$
+
+- **Conjunto de acciones** — $ACTIONS(S)$
+
+- **Modelo de transicion** — $P(s'\ |\ s,\ a)$
+
+- **Funcion de recompensa** — $R(s,\ a,\ s')$
