@@ -326,3 +326,115 @@ Todo modelo `markov decision process` codifica la idea de un:
 - **Modelo de transicion** — $P(s'\ |\ s,\ a)$
 
 - **Funcion de recompensa** — $R(s,\ a,\ s')$
+
+## $Q$-Learning
+
+De manera semejante al anterior escenario de aprendizaje supervisado donde un modelo aprendia una funcion hipotesis para predecir una clasificacion dado un vector de datos de entrada (data point), en esta ocasion nuestro modelo de `reinforcement learning` va a aprender una funcion $Q(s,\ a)$ de estimacion de recompensa.
+
+En otras palabras, el modelo va a aprender el significado de tomar una determinada accion sobre un estado, pues este conoce sus implicaciones (recibir mas o menos recompensa).
+
+![q-learning](./imgs/q-learning.png)
+
+En terminos conceptuales, asi es como el modelo podria aprender / entrenar la funcion de estimacion de recompensa $Q(s,\ a)$:
+
+- En primer lugar $Q(s,\ a)$ asigna un valor de $0$ a cada $s,\ a$, pues en un principio no hay conocimiento.
+
+- Cuando el modelo toma una decision sobre un estado determinado (como es de esperar, las primeras decisiones practicamente sin criterio), se obtienen dos valores diferentes:
+
+  - El valor real de recompensa (en lugar del empirico, que fue calculado por $Q$), y
+
+  - Las recompensas futuras esperadas.
+
+- Se consideran ambos valores para calibrar la funcion $Q$.
+
+- El modelo (que ahora se encuentra en un nuevo estado) vuelve a tomar una accion y se repite de vuelta todo el proceso.
+
+![q-learning-overview](./imgs/q-learning-overview.png)
+
+Podemos representar matematicamente el proceso de calibracion de la funcion $Q$, donde se valora el conocimiento ya adquirido en el grado en el que jugemos con el parametro $ɑ$.
+
+![Q(s, a) <- Q(s, a) + ɑ(new_value_estimate - old_value_estimate)](./imgs/q-learning-function-tuning.png)
+
+Donde $ɑ$ es el `learning rate` o ratio de aprendizaje — Tambien podemos verlo como el valor que le damos al conocimiento ya adquirido contra el nuevo;
+
+`new value estimate` representa el nuevo valor de estimacion aunque sin pasar por `learning rate`, es decir, sin considerar conocimiento ya adquirido (equivalente a `learning rate` de $1$) — en unos momentos veremos formalmente como obtener este nuevo valor de estimacion;
+
+Y donde `old value estimate` es la anterior estimacion por la funcion $Q$ para $s,\ a$.
+
+> Si el ratio de aprendizaje es $1$, aritmeticamente termina resultando equivalente a asignar como nuevo valor de estimacion `new value estimate` directamente.
+
+**Valores de estimacion:**
+
+- `old value estimate` — $Q(s,\ a)$
+
+- `new value estimate` — $r\ +\ max_{a'}(s',\ a')$:
+
+  La recompensa real (recompensa no empirica) + maxima recompensa por una accion en el estado inmediatamente despues (estado futuro).
+
+Adicionalmente tenemos la posibilidad de minusvalorar las recompensas futuras, dando por lo tanto mas importancia a la recompensa actual. Sencillamente reduciremos el factor gamma.
+
+$ɣ * max_{a'}(s',\ a')$
+
+## Greedy Decision-Making
+
+Una vez entranada la funcion de estimacion de recompensa $Q$, es de esperar que en todo momento al agente ha de seleccionar la mejor accion para el estado en el que se encuentra, no solo por la recompensa a recibir inmediatamente, si no por las posibles futuras recompensas tambien (en funcion de como se hayan ajustado los parametros). Este proceso es conocido como `greedy decision-making` o toma de decisiones codiciosa.
+
+Si siguieramos `greedy decision-making` al pie de la letra, muy probablemente terminariamos encontrandonos con un famoso reto en `reinforcement learning`.
+
+Estamos hablando de **Exploracion VS Explotacion**.
+
+Nuestro modelo de aprendizaje por refuerzo va a ser realmente bueno buscando y aprendiendo el camino hacia una solucion; sin embargo, muchas veces la solucion que este encuentra al problema no es la mas efectiva.
+
+El modelo en cierta medida necesita tomar ciertas decisiones en contra de su conocimiento, pues es totalmente factible que este tenga una vision distorsionada sobre cual realmente es la mejor solucion al problema.
+
+Este proceso de toma de decisiones "malas" (desde la perspectiva del conocimiento del agente para este momento) es conocido como **exploracion** y es la parte contrapuesta al concepto de **explotacion**, es decir, la toma de decisiones empiricas.
+
+![explotation-problem-graphical-explanation](./imgs/explotation-problem-graphical-explanation.png)
+
+## ε-Greedy
+
+Consiste en un metodo de eleccion de acciones donde se incluye el factor de exploracion (eleccion aleatoria). Haciendo al modelo algo menos conservador a la hora de tomar decisiones, este desbloquea caminos potencialmente mas rentables en terminos de recompensas.
+
+Sencillamente ajustaremos el valor de $ε$ en la medida en la que queremos que el agente explore, de manera que:
+
+1. Probabilidad de $ε-1$ sera empleada a explotacion — $Q(s,\ a)$
+
+2. Probabilidad de $ε$ sera empleada a exploracion — $RAND_a()$
+
+Un algoritmo `ε-greedy` algo mas sofisticado podria incluso variar el valor de `ε` segun el modelo va aprendiendo; de manera que, especialmente al principio explore mas y al cabo del tiempo su objetivo sea principalmente explotacion.
+
+## Function Approximation
+
+En ocasiones el numero de estados y acciones sobrepasa una cantidad razonable que una computadora de hoy en dia puede procesar. Por eso mismo en muchas ocasiones nos vemos obligados a aprender una funcion $Q$ aproximada; esta funcion $Q$ podria a su vez trabajar con clasificaciones de estados y acciones (aprendizaje supervisado), conservando la informacion sustancial y descartando detalles computacionalmente caros.
+
+# Unsupervised Learning
+
+Junto al aprendizaje supervisado y el aprendizaje por refuerzo, consiste en un tercer metodo de `machine learning` orientado a la clasificacion de datos no etiquetados.
+
+Es extendido en numerosas areas de uso como:
+
+- Investigacion genetica
+
+- Analiticas de redes sociales
+
+- Segmentacion de imagenes (detectar objetos en una imagen)
+
+- Investigacion de mercado
+
+## $k$-means clustering
+
+Consiste en un algoritmo de `unsupervised learning` donde dado un conjunto de datos no etiquetados se detectan patrones y se agrupan en `clusters`. Se basa en el concepto de asignar puntos de datos a `clusters` (puntos centrales de un grupo) por un criterio de cercania.
+
+Estos `clusters` han de ser estrategicamente cuantificados y ubicados en el espacio de $n$ dimensiones, pues han de reconocer los patrones en los datos no clasificados. `k-means clustering` consigue posiconar correctamente los `custers` mediante un procedimiento continuo de acercamiento a los lugares del espacio con mayor densidad de `data points`.
+
+![k-means-clustering](./imgs/k-means-clustering.png)
+
+---
+
+**Learning**
+
+- Supervised Learning
+
+- Reinforcement Learning
+
+- Unsupervised Learning
