@@ -1,8 +1,10 @@
 data
 week-0/degrees/large
 week-0/degrees/small
-*dummy.py
+
+
 bin
+*dummy.py
 myenv
 *.zip
 __pycache__
