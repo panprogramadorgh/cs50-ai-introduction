@@ -1,6 +1,5 @@
 import csv
 import sys
-import itertools
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -25,10 +24,24 @@ months = (
 )
 
 
-def month_to_integer(month: str):
+def month_parser(month: str):
     if month not in months:
         raise ValueError(f"Invalid month was provided: '{month}'")
     return months.index(month)
+
+
+def bool_lit_parser(lit: str):
+    """
+    Not case sensitive boolean literal parser.
+
+    Examples:
+        - "TRUE" -> True
+        - "backed_beans" -> False"""
+    return int(lit.lower() == "true")
+
+
+def visitortp_lit_parser(lit: str):
+    return int(lit.lower() == "returning_visitor")
 
 
 def parse_row(row: list[str]):
@@ -36,11 +49,11 @@ def parse_row(row: list[str]):
     In charge of field type convertions for each row.
 
     Parameters:
-        - row — The current CSV row without the final `revenue` column.
+        - row — The current CSV row including the final `revenue` column.
     """
 
     # The whole parsed row will be stored here
-    parsed_row = []
+    parsed = []
 
     parsers = (
         int,  # Administrative
@@ -53,13 +66,14 @@ def parse_row(row: list[str]):
         float,  # ExitRates
         float,  # PageValues
         float,  # SpecialDay
-        month_to_integer,  # Month
+        month_parser,  # Month
         int,  # OperatingSystems
         int,  # Browser
         int,  # Region
         int,  # TrafficType
-        int,  # VisitorType
-        int,  # Weekend
+        visitortp_lit_parser,  # VisitorType
+        bool_lit_parser,  # Weekend
+        bool_lit_parser,  # Revenue
     )
 
     parsers_len = len(parsers)
@@ -67,9 +81,9 @@ def parse_row(row: list[str]):
         raise ValueError(f"Invalid row size. Expected size: {parsers_len}")
 
     for field, parser in zip(row, parsers):
-        parsed_row.append(parser(field))
+        parsed.append(parser(field))
 
-    return parsed_row
+    return parsed
 
 
 # ---------
@@ -131,14 +145,16 @@ def load_data(filename: str):
     """
 
     labels: list[int] = []
-    evidence: list[list] = []
+    evidence: list[list[int | float]] = []
 
     with open(filename, mode="r", encoding="utf-8", newline="") as file:
         reader = csv.reader(file)
-        for row in reader:
-            e = parse_row(row[0 : len(row) - 1])
-            evidence.append(e)
-            labels.append(row[len(row) - 1])
+        for i, row in enumerate(reader):
+            if i < 1:
+                continue
+            prow = parse_row(row)
+            evidence.append(prow[0 : len(prow) - 1])
+            labels.append(prow[len(prow) - 1])
 
     return (evidence, labels)
 
@@ -148,6 +164,18 @@ def train_model(evidence: list[list], labels: list[int]):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
+
+    """ 
+    Initialized model with scikitlearn and fit them.
+    
+    Resources:
+        - https://scikit-learn.org/stable/auto_examples/neighbors/plot_classification.html#sphx-glr-auto-examples-neighbors-plot-classification-py
+        
+        - https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation
+    """
+
+    model = KNeighborsClassifier(n_neighbors=1)
+
     raise NotImplementedError
 
 
