@@ -3,7 +3,7 @@ import sys
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-
+import numpy as np
 
 # Not provided implementations
 
@@ -24,7 +24,7 @@ months = (
 )
 
 
-def month_parser(month: str):
+def month_lit_parser(month: str):
     if month not in months:
         raise ValueError(f"Invalid month was provided: '{month}'")
     return months.index(month)
@@ -66,7 +66,7 @@ def parse_row(row: list[str]):
         float,  # ExitRates
         float,  # PageValues
         float,  # SpecialDay
-        month_parser,  # Month
+        month_lit_parser,  # Month
         int,  # OperatingSystems
         int,  # Browser
         int,  # Region
@@ -78,7 +78,7 @@ def parse_row(row: list[str]):
 
     parsers_len = len(parsers)
     if parsers_len != len(row):
-        raise ValueError(f"Invalid row size. Expected size: {parsers_len}")
+        raise ValueError(f"Invalid row size. The expected size is: {parsers_len}")
 
     for field, parser in zip(row, parsers):
         parsed.append(parser(field))
@@ -165,18 +165,10 @@ def train_model(evidence: list[list], labels: list[int]):
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
 
-    """ 
-    Initialized model with scikitlearn and fit them.
-    
-    Resources:
-        - https://scikit-learn.org/stable/auto_examples/neighbors/plot_classification.html#sphx-glr-auto-examples-neighbors-plot-classification-py
-        
-        - https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation
-    """
-
     model = KNeighborsClassifier(n_neighbors=1)
+    model.fit(evidence, labels)
 
-    raise NotImplementedError
+    return model
 
 
 def evaluate(labels: list[int], predictions: list[int]):
@@ -194,7 +186,22 @@ def evaluate(labels: list[int], predictions: list[int]):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+
+    sensibility_predicts, sensibility_successes = 0, 0
+    specificity_predicts, specificity_successes = 0, 0
+
+    for label, predict in zip(labels, predictions):
+        if label < 1:  # Negative rate
+            specificity_successes += int(label == predict)
+            specificity_predicts += 1
+        elif label > 0:  # Positive rate
+            sensibility_successes += int(label == predict)
+            sensibility_predicts += 1
+
+    return (
+        sensibility_successes / sensibility_predicts,
+        specificity_successes / specificity_predicts,
+    )
 
 
 if __name__ == "__main__":
