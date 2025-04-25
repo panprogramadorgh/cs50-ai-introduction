@@ -72,7 +72,7 @@ class Nim:
 
 class NimAI:
 
-    def __init__(self, alpha=0.5, epsilon=0.1):
+    def __init__(self, alpha: float = 0.05, epsilon: float = 0.30):
         """
         Initialize AI with an empty Q-learning dictionary,
         an alpha (learning) rate, and an epsilon rate.
@@ -82,11 +82,18 @@ class NimAI:
          - `state` is a tuple of remaining piles, e.g. (1, 1, 4, 4)
          - `action` is a tuple `(i, j)` for an action
         """
+
         self.q: dict[tuple[tuple[int, ...], tuple[int, int]], float] = dict()
         self.alpha = alpha
         self.epsilon = epsilon
 
-    def update(self, old_state, action, new_state, reward):
+    def update(
+        self,
+        old_state: list[int],
+        action: tuple[int, int],
+        new_state: list[int],
+        reward: int,
+    ):
         """
         Update Q-learning model, given an old state, an action taken
         in that state, a new resulting state, and the reward received
@@ -111,7 +118,7 @@ class NimAI:
         action: tuple[int, int],
         old_q: float,
         reward: int,
-        future_rewards,
+        future_rewards: float,
     ):
         """
         Update the Q-value for the state `state` and the action `action`
@@ -141,6 +148,8 @@ class NimAI:
         `state`, return 0.
         """
 
+        # TODO: Enhance rewards system going deeper states
+
         best = 0
 
         actions: set[tuple[int, int]] = Nim.available_actions(state)
@@ -168,9 +177,9 @@ class NimAI:
         """
 
         actions: set[tuple[int, int]] = Nim.available_actions(state)
-        best_action = actions.copy().pop()
+        best_action = actions.copy().pop() if len(actions) else None
 
-        if random.random() < self.epsilon:
+        if best_action is None or epsilon and random.random() < self.epsilon:
             return best_action
 
         best_value = self.get_q_value(state, best_action)
