@@ -18,7 +18,7 @@ class Nim:
         self.winner = None
 
     @classmethod
-    def available_actions(cls, piles: list[int]):
+    def available_actions(cls, piles: list[int]) -> set[tuple[int, int]]:
         """
         Nim.available_actions(piles) takes a `piles` list as input
         and returns all of the available actions `(i, j)` in that state.
@@ -40,13 +40,35 @@ class Nim:
         """
         return 0 if player == 1 else 1
 
+    @classmethod
+    def move_state(cls, state: list[int], action: tuple[int, int]):
+        pile, count = action
+
+        if pile < 0 or pile >= len(state):
+            raise Exception("Invalid pile")
+        elif count < 1 or count > state[pile]:
+            raise Exception("Invalid number of objects")
+
+        state[pile] -= count
+
     def switch_player(self):
         """
         Switch the current player to the other player.
         """
         self.player = Nim.other_player(self.player)
 
-    def move(self, action):
+    def move(self, action: tuple[int, int]):
+        """
+        Make the move `action` for the current player.
+        `action` must be a tuple `(i, j)`.
+        """
+        self.move_state(self.piles, action)
+        self.switch_player()
+        if all(p == 0 for p in self.piles):
+            self.winner = self.player
+
+    # Default move method for this exercise, since we are enhancing the model we will make use of a different one
+    def _move(self, action):
         """
         Make the move `action` for the current player.
         `action` must be a tuple `(i, j)`.
@@ -112,6 +134,18 @@ class NimAI:
         q_value = self.q.get(q_key)
         return 0 if q_value is None else q_value
 
+    def get_greedy(self, state: list[int]):
+        """
+        Returns the immediate greadiest (q, action) for the current state.
+        """
+        actions = Nim.available_actions(state)
+        best: tuple[int, tuple[int, int] | None] = (0, None)
+        for a in actions:
+            q_value = self.get_q_value(state, a)
+            if q_value > best[0]:
+                best = (q_value, a)
+        return best
+
     def update_q_value(
         self,
         state: list[int],
@@ -137,6 +171,11 @@ class NimAI:
         q_key = (tuple(state), action)
         self.q[q_key] = old_q + (self.alpha * (reward + future_rewards - old_q))
 
+    # TODO: Finish
+    # def lookahead(self, state: list[int], acc: float = 0):
+    #     best_q = self.get_greedy(state)
+    #     Nim.move_state()
+
     def best_future_reward(self, state: list[int]):
         """
         Given a state `state`, consider all possible `(state, action)`
@@ -150,15 +189,7 @@ class NimAI:
 
         # TODO: Enhance rewards system going deeper states
 
-        best = 0
-
-        actions: set[tuple[int, int]] = Nim.available_actions(state)
-        for a in actions:
-            q_value = self.get_q_value(state, a)
-            if q_value > best:
-                best = q_value
-
-        return best
+        return self.get_greedy(state)[0]
 
     def choose_action(self, state: list[int], epsilon=True):
         """
@@ -182,15 +213,7 @@ class NimAI:
         if best_action is None or epsilon and random.random() < self.epsilon:
             return best_action
 
-        best_value = self.get_q_value(state, best_action)
-
-        for a in actions:
-            q_value = self.get_q_value(state, a)
-            if q_value > best_value:
-                best_action = a
-                best_value = q_value
-
-        return best_action
+        return self.get_greedy(state)[1]
 
 
 def train(n):
@@ -249,7 +272,7 @@ def train(n):
     return player
 
 
-def play(ai, human_player=None):
+def play(ai: NimAI, human_player=None):
     """
     Play human game against the AI.
     `human_player` can be set to 0 or 1 to specify whether
