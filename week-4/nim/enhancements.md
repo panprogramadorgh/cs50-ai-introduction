@@ -27,7 +27,7 @@ def best_future_reward(self, state: list[int]):
     return best
 ```
 
-Una posible solucion a este problema podria consistir en ampliar el espectro o profundidaz de estados desbloqueados a partir de haber tomado una decision.
+Una posible solucion a este problema podria consistir en ampliar el espectro o profundidaz a traves del cual calculamos las recompensas futuras.
 
 Para evaluar que tan valioso es tomar nuestro nodo, podriamos:
 
@@ -37,6 +37,6 @@ Para evaluar que tan valioso es tomar nuestro nodo, podriamos:
 
 - Tomar cada valor mas codicioso de cada estado que hemos transcurrido y sumarlo.
 
-Este ultimo dato seria en ultima instancia el "valor" para nuestro nodo inicial.
+El resultado de esta suma seria en ultima instancia el "valor" para nuestro nodo inicial.
 
-A todo este razoniamiento habria que añadir el concepto de "exploracion" para encontrar soluciones en caminos potencialmente mejores.
+A todo este razoniamiento habria que añadir el concepto de "exploracion" con algoritmos como `epsilon greeedy`.

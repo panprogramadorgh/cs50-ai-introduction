@@ -1,6 +1,8 @@
-import math
+import sys
+import numpy as np
 import random
 import time
+from typing import Callable, Any, Literal, Optional
 
 
 class Nim:
@@ -42,14 +44,19 @@ class Nim:
 
     @classmethod
     def move_state(cls, state: list[int], action: tuple[int, int]):
+        """
+        Moves the provided state given the action.
+        """
+
         pile, count = action
 
         if pile < 0 or pile >= len(state):
-            raise Exception("Invalid pile")
+            raise ValueError("Invalid pile")
         elif count < 1 or count > state[pile]:
-            raise Exception("Invalid number of objects")
+            raise ValueError("Invalid number of objects")
 
         state[pile] -= count
+        return state
 
     def switch_player(self):
         """
@@ -62,6 +69,8 @@ class Nim:
         Make the move `action` for the current player.
         `action` must be a tuple `(i, j)`.
         """
+        if self.winner is not None:
+            raise Exception("Game already won")
         self.move_state(self.piles, action)
         self.switch_player()
         if all(p == 0 for p in self.piles):
@@ -94,7 +103,34 @@ class Nim:
 
 class NimAI:
 
-    def __init__(self, alpha: float = 0.05, epsilon: float = 0.30):
+    QReader = Literal["shallow", "lookahead"]
+
+    @property
+    def q_readers(
+        self,
+    ) -> dict[QReader, Callable[[list[int], tuple[int, int], dict], float]]:
+        return {
+            "shallow": lambda state, action, kwargs: self.get_q_value(
+                state, action, **kwargs
+            ),
+            "lookahead": lambda state, action, kwargs: self.lookahead(
+                state, action, **kwargs
+            ),
+        }
+
+    """
+    Built in self.q readers.
+    """
+
+    # ---
+
+    def __init__(
+        self,
+        model_name: str,
+        alpha: float = 0.4,
+        epsilon: float = 0.3,
+        lookahead_depth: int = 5,
+    ):
         """
         Initialize AI with an empty Q-learning dictionary,
         an alpha (learning) rate, and an epsilon rate.
@@ -105,9 +141,40 @@ class NimAI:
          - `action` is a tuple `(i, j)` for an action
         """
 
+        self.model_name = model_name
         self.q: dict[tuple[tuple[int, ...], tuple[int, int]], float] = dict()
         self.alpha = alpha
         self.epsilon = epsilon
+        self.lookahead_depth = lookahead_depth
+
+    def get_q_value(self, state: list[int], action: tuple[int, int]) -> float:
+        """
+        Return the Q-value for the state `state` and the action `action`.
+        If no Q-value exists yet in `self.q`, return 0.
+        """
+        q_key = (tuple(state), action)
+        q_value = self.q.get(q_key)
+        return 0 if q_value is None else q_value
+
+    def lookahead(
+        self, state: list[int], _unused, max_depth: int, _acc: float = 0
+    ) -> float:
+        """
+        Recursively advances future states by choosing the grediest and accumulates rewards to verify the "quality" of the path.
+        """
+        greedy = self.get_greedy(state)
+        q, a = 0, 1  # Clarified access
+
+        if max_depth <= 0 or greedy is None:
+            return _acc
+
+        _acc += greedy[q]
+
+        if max_depth <= 0 or greedy[a] is None:
+            return _acc
+
+        Nim.move_state(state, greedy[a])
+        return self.lookahead(state, _unused, max_depth - 1, _acc)
 
     def update(
         self,
@@ -125,23 +192,30 @@ class NimAI:
         best_future = self.best_future_reward(new_state)
         self.update_q_value(old_state, action, old, reward, best_future)
 
-    def get_q_value(self, state: list[int], action: tuple[int, int]):
-        """
-        Return the Q-value for the state `state` and the action `action`.
-        If no Q-value exists yet in `self.q`, return 0.
-        """
-        q_key = (tuple(state), action)
-        q_value = self.q.get(q_key)
-        return 0 if q_value is None else q_value
-
-    def get_greedy(self, state: list[int]):
+    def get_greedy(
+        self,
+        state: list[int],
+        q_reader: QReader = "shallow",
+        **kwargs,  # Reader arguments
+    ):
         """
         Returns the immediate greadiest (q, action) for the current state.
         """
+        if q_reader not in self.q_readers.keys():
+            raise ValueError(f"Invalid q_reader: 'f{q_reader}'")
+        q_reader_cb = self.q_readers[q_reader]
+
+        # If no actions available, return None
         actions = Nim.available_actions(state)
-        best: tuple[int, tuple[int, int] | None] = (0, None)
+        if not len(actions):
+            return None
+
+        # We initially take one action randomly to be the best one
+        best: tuple[float, tuple[int, int]] = (0.0, random.choice(tuple(actions)))
         for a in actions:
-            q_value = self.get_q_value(state, a)
+            # DEBUG: We try using get_q_value directly, instead of by modular readers
+            q_value = q_reader_cb(state.copy(), a, kwargs)
+
             if q_value > best[0]:
                 best = (q_value, a)
         return best
@@ -171,11 +245,6 @@ class NimAI:
         q_key = (tuple(state), action)
         self.q[q_key] = old_q + (self.alpha * (reward + future_rewards - old_q))
 
-    # TODO: Finish
-    # def lookahead(self, state: list[int], acc: float = 0):
-    #     best_q = self.get_greedy(state)
-    #     Nim.move_state()
-
     def best_future_reward(self, state: list[int]):
         """
         Given a state `state`, consider all possible `(state, action)`
@@ -187,9 +256,13 @@ class NimAI:
         `state`, return 0.
         """
 
-        # TODO: Enhance rewards system going deeper states
+        # If no available actions are found (for instance the game is gone), None will be return and we will reciebe an error.
 
-        return self.get_greedy(state)[0]
+        best_lookahead = self.get_greedy(
+            state, q_reader="lookahead", max_depth=self.lookahead_depth
+        )
+
+        return best_lookahead[0] if best_lookahead is not None else 0.0
 
     def choose_action(self, state: list[int], epsilon=True):
         """
@@ -207,13 +280,16 @@ class NimAI:
         options is an acceptable return value.
         """
 
-        actions: set[tuple[int, int]] = Nim.available_actions(state)
-        best_action = actions.copy().pop() if len(actions) else None
+        actions = Nim.available_actions(state)
 
-        if best_action is None or epsilon and random.random() < self.epsilon:
-            return best_action
+        if not len(actions):
+            return None
+        elif epsilon and random.random() <= self.epsilon:
+            return random.choice(tuple(actions))
 
-        return self.get_greedy(state)[1]
+        return self.get_greedy(
+            state, q_reader="lookahead", max_depth=self.lookahead_depth
+        )[1]
 
 
 def train(n):
@@ -221,7 +297,7 @@ def train(n):
     Train an AI by playing `n` games against itself.
     """
 
-    player = NimAI()
+    player = NimAI(f"model_trained_{n}_times", lookahead_depth=7)
 
     # Play n games
     for i in range(n):
@@ -326,3 +402,30 @@ def play(ai: NimAI, human_player=None):
             winner = "Human" if game.winner == human_player else "AI"
             print(f"Winner is {winner}")
             return
+
+
+def ai_confrontation(models: np.ndarray[tuple[int], NimAI]):
+    if models.shape[0] != 2:
+        raise ValueError("Expected models shape: (2, )")
+    np.random.seed(42)
+    np.random.shuffle(models)
+
+    game = Nim()
+
+    while game.winner is None:
+
+        print()
+        print("Piles:")
+        for i, pile in enumerate(game.piles):
+            print(f"Pile {i}: {pile}")
+        print()
+
+        time.sleep(0.200)
+
+        choice: tuple[int, int] = models[game.player].choose_action(
+            game.piles, epsilon=False
+        )
+        game.move(choice)
+
+    winner = models[game.winner].model_name
+    print(f"GAME OVER\nThe winner is {winner}")
