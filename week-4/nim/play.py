@@ -1,15 +1,21 @@
-import numpy as np
-from nim import train, play, ai_confrontation
+from nim import train, play
 
-GAMES = 10
+model = train(1_000)
+play(model)
 
-print("Training first AI")
-first_agent = train(500)
+# GAMES = 1000
+# """
+# Number of games to be played for both ai models.
+# """
 
-print("Training seconnd AI")
-second_agent = train(5000)
+# first, second = train(50), train(500)
+# models = {first.model_name: 0, second.model_name: 0}
 
+# print(f"Both models are competing each other {GAMES} times ...")
 
-for i in range(GAMES):
-    print(f"Game - {i}")
-    ai_confrontation(np.array([first_agent, second_agent]))
+# for i in range(GAMES):
+#     winner = ai_confrontation([first, second])
+#     models[winner.model_name] += 1
+
+# print("Printing scores for both trained models:")
+# print(models)

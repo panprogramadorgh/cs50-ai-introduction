@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+from numpy.typing import NDArray
 import random
 import time
 from typing import Callable, Any, Literal, Optional
@@ -127,9 +128,9 @@ class NimAI:
     def __init__(
         self,
         model_name: str,
-        alpha: float = 0.4,
-        epsilon: float = 0.3,
-        lookahead_depth: int = 5,
+        alpha: float = 0.25,
+        epsilon: float = 0.2,
+        lookahead_depth: int = 6,
     ):
         """
         Initialize AI with an empty Q-learning dictionary,
@@ -297,7 +298,7 @@ def train(n):
     Train an AI by playing `n` games against itself.
     """
 
-    player = NimAI(f"model_trained_{n}_times", lookahead_depth=7)
+    player = NimAI(f"model_trained_{n}_times")
 
     # Play n games
     for i in range(n):
@@ -404,28 +405,19 @@ def play(ai: NimAI, human_player=None):
             return
 
 
-def ai_confrontation(models: np.ndarray[tuple[int], NimAI]):
-    if models.shape[0] != 2:
-        raise ValueError("Expected models shape: (2, )")
-    np.random.seed(42)
-    np.random.shuffle(models)
+def ai_confrontation(models: list[NimAI]):
+    if len(models) != 2:
+        raise ValueError("Expected models: 2")
+    if random.random() < 0.5:
+        models = (models[1], models[0])
 
     game = Nim()
 
     while game.winner is None:
-
-        print()
-        print("Piles:")
-        for i, pile in enumerate(game.piles):
-            print(f"Pile {i}: {pile}")
-        print()
-
-        time.sleep(0.200)
-
         choice: tuple[int, int] = models[game.player].choose_action(
             game.piles, epsilon=False
         )
         game.move(choice)
 
-    winner = models[game.winner].model_name
-    print(f"GAME OVER\nThe winner is {winner}")
+    winner = models[game.winner]
+    return winner
