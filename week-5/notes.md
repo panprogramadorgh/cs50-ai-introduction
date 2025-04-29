@@ -72,7 +72,7 @@ A partir del valor generado por esta funcion matematica de regresion, lo que bus
 
 ![rectified-linear-unit](./imgs/rectified-linear-unit.png)
 
-# Neural Structure Structure
+# Neural Netowrk Structure
 
 En realidad, gracias mismo enfoque de pesos **W** e inputs **X** podemos concebir la red neuronal mas sencilla posible. Solamente tenemos que representar graficamente esta idea para darnos cuenta.
 
@@ -117,3 +117,73 @@ Demandamos un mecanismo conveniente para entrenar los pesos de una red neuronal.
 > Una funcion de perdida en el contexto de aprendizaje automatico calcula que tan "probre" es un modelo / ann generando predicciones.
 
 Desciente por gradiente es capaz de predecir la pendiente de una funcion dados unos parametros de entrara y descender por dicha cuesta con el objetivo de minimizar el coste de la funcion; de esta manera es como conseguimos encontrar los pesos indicados.
+
+Cabe destacar que en la leccion anterior estuvimos trabajando con `perceptron learning rule` para entrenar **W**; sin embargo, dicha regla no es aplicable a redes neuronales modernas dadas sus limitaciones en terminos de:
+
+- Escenarios multiclase (en lugar de clasificaciones binarias)
+
+- Clasificacion de datos no lineales
+
+Hoy en dia esta regla es mas bien considerada desde el punto de vista didactico.
+
+Podemos describir el funcionamiento de descenso por gradiente de la siguiente forma:
+
+1. En primer lugar elegimos un numero de unidades de la red neuronal aleatoriamente.
+
+2. Para tales unidades buscaremos la pendiente en la funcion de perdida gracias todos a los datos de entrenamiento (`data points`).
+
+3. Conociendo la direccion / pendiente moveremos en consecuencia los pesos.
+
+4. Repetimos el proceso volviendo al paso $2$.
+
+Tras repetir multiples veces este mismo proceso (el tamaño de los saltos en los pesos puede variar), deberiamos terminar una solucion realmente buena en este escenario de clasificacion.
+
+El terminos de costo computacional, lo mas caro suele ser el proceso de calculo de pendiente para absolutamente **todos los puntos de datos** del entrenamiento.
+
+# Stochastic Gradient Descent
+
+Es algo mas barato en terminos de de costo computacional. La principal diferencia radica en el calculo de la pendiente, donde a diferencia de en descenso por gradiente, esta es calculada solo sobre un `data point` del entrenamiento al mismo tiempo.
+
+1. Comenzamos eligiendo un numero de unidades de la **ann** aleatoriamente.
+
+2. Nos centraremos en un solo punto de datos del entrenamiento elegido aleatoriamente y calcularemos su pendiente.
+
+3. Desplazaremos los pesos de las unidades de acuerdo con la pendiente de dicho punto de datos.
+
+4. Repetimos el mismo proceso volviendo al paso $2$.
+
+Cabe destacar que este metodo va a ser menos preciso con respecto al descenso de gradiente tradicional, pero ofrece un rendimiento mejorado.
+
+# Mini-Batch Gradient Descent
+
+Consiste en un popular termino medio entre ambos. En lugar de hacer los calculos de pendiente sobre uno o todos los puntos del entrenamiento, un lote con una cantidad constante puntos de puntos datos (lote considerablemente mas pequeño que la totalidad de los datos del entrenamiento), sera tomado para hacer los calculos de direccion de pendiente.
+
+---
+
+Si se presta atencion, hasta el momento todas la **ann** que hemos estado viendo tienen la forma:
+
+![basic-ann-shape](./imgs/basic-ann-shape.png)
+
+Sin embargo; es totalmente factible dar con redes neuronales que esperan multiples valores de salida. Una **ann** con multiples valores de salida se representa graficamente de la siguiente manera:
+
+![multi-output-ann-shape](./imgs/multi-output-ann-shape.png)
+
+> Escenario multiclase para clasificar el tiempo.
+
+Se calcula el dot product entre el vector de datos de entrada y los pesos entrenados para cada unidad neuronal; cada unidad neuronal de salida percibe el valor y se ejcuta una funcion de activacion (la cual puede involucrar simples valores discretos o valores numericos continuos representando probabilidades).
+
+De esta manera hemos logrado un escenario donde una **ann** genera un vector de datos de salida, formando una distribucion de probabilidad multiclase.
+
+Para entrenar los pesos de una red neuronal con un vector de datos de salida (en lugar de un solo output), podemos emplear una tecnica que consiste en segmentar la red en subredes mas pequeñas, entrenando cada uno de sus pesos de forma independiente.
+
+![training-multi-output-anns](./imgs/training-multi-output-anns.png)
+
+> Podemos adoptar esta perspectiva de subredes porque los inputs estan directamente conectados a los outputs.
+
+Hasta el momento hemos puesto encima de la mesa modelos de redes neuronales que pueden hacer un trabajo realmente bueno clasificando datos lineales; sin embargo, esto puede llegar a ser un escenario idealizado y en ocasiones nuestra **ann** tendra que lidiar con casos mas realistas e irregulares (casos donde posiblemente los datos no sean linealmente separables).
+
+Todas estas **ann** que estamos estudiando se basan en `perceptron learning rule` de una sola capa; es decir, los datos de entrada son directamente asociados a la salida, no existe ninguna capa oculta de perceptrones entre medias de la entrada y la salida.
+
+Adoptar un modelo multicapa es una estrategia a considerar si se busca separar datos linealmente no separables.
+
+![multi-layer-and-output-ann](./imgs/multi-layer-and-output-ann.png)
