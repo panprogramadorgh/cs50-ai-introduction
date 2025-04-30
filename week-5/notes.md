@@ -180,6 +180,8 @@ Para entrenar los pesos de una red neuronal con un vector de datos de salida (en
 
 > Podemos adoptar esta perspectiva de subredes porque los inputs estan directamente conectados a los outputs.
 
+# Deep Neural Networks
+
 Hasta el momento hemos puesto encima de la mesa modelos de redes neuronales que pueden hacer un trabajo realmente bueno clasificando datos lineales; sin embargo, esto puede llegar a ser un escenario idealizado y en ocasiones nuestra **ann** tendra que lidiar con casos mas realistas e irregulares (casos donde posiblemente los datos no sean linealmente separables).
 
 Todas estas **ann** que estamos estudiando se basan en `perceptron learning rule` de una sola capa; es decir, los datos de entrada son directamente asociados a la salida, no existe ninguna capa oculta de perceptrones entre medias de la entrada y la salida.
@@ -187,3 +189,40 @@ Todas estas **ann** que estamos estudiando se basan en `perceptron learning rule
 Adoptar un modelo multicapa es una estrategia a considerar si se busca separar datos linealmente no separables.
 
 ![multi-layer-and-output-ann](./imgs/multi-layer-and-output-ann.png)
+
+En un **ann** con capas de perceptrones ocultas, existe en paso intermedio de asociacion de valores de entrada con valores de salida, solo que tales valores de salida en el fondo forman a su vez valores de entrada para la proxima capa de perceptrones / output final.
+
+## Backpropagation
+
+Como es de esperar, el proceso de entrenamiento de una **ann** con multicapa de perceptron es diferente al de las redes que vimos con anterioridad, donde las unidades neuronales de entrada estaban directamente conectadas a la salida.
+
+La principal dificultar que encontrariamos al entrenar una **ann** si continuaramos con el mismo enfoque de aprendizaje de perceptron que hemos etado viendo, es que en los datos de entrenamiento no se proporciona ningun etiqueta de referencia con la que basarnos para entrenar los pesos de las unidades ocultas.
+
+Una una solucion a este problema de etiquetamiento en unidades ocultas consite en un modelo matematico basado en una funcion de perdida para los resultados de estimacion de de la **ann**.
+
+A traves de este metodo, y por medio de un calculo de implicacion por parte de las unidades de entrada de cada capa en la generacion de errores relativa a la funcion perdida, es posible retropropagar los ajustees necesarios en los pesos de cada unidad de la red neuronal sintetica.
+
+Esta es precisamente la labor de un algoritmo de `backpropagation` o retropropagacion.
+
+- En primer lugar comenzamos eligiendo una determinada cantidad de unidades.
+
+- Calculamos con la funcion de perdida el error para el output.
+
+- Para cada capa, comenzando desde el output y desplazandonos entre capas hasta llegar a la primera capa oculta:
+
+  - Propagaremos el error una capa hacia atras.
+  - Actualizaremos los pesos de las unidades.
+
+# Overfitting
+
+En la anterior leccion ya vimos el concepto de overfitting desde una perspectiva general de clasificacion en `machine learning`.
+
+Sin embargo, las redes neuronales tambien pueden correr el mismo riesgo a sufrir `overfitting`, perdiendo generalidad y estimando pesimanete datos no provistos como parte del entrenamiento del modelo.
+
+## Dropout
+
+Consiste en una tecnica para mitigar el problema de overfitting y al mismo tiempo generar robusted promoviendo la no dependencia en exceso sobre las unidades.
+
+Consiste en eliminar temporalmente de la red ciertas unidades elegidas aleatoriamente.
+
+![dropout-method](./imgs/dropout-method.png)
