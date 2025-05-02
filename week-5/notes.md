@@ -226,3 +226,97 @@ Consiste en una tecnica para mitigar el problema de overfitting y al mismo tiemp
 Consiste en eliminar temporalmente de la red ciertas unidades elegidas aleatoriamente.
 
 ![dropout-method](./imgs/dropout-method.png)
+
+# TensorFlow
+
+Desde una perspectiva de programacion, existen muchas librerias para muchos lenguajes de programacion que implementan estos algoritmos de redes neuronales.
+
+`TensorFlow` es la implementacion de todos estos algoritmos por parte de **Google**. Con `TensorFlow` podemos facilmente (y sin necesidad de implementar estos algoritmos por nuestra propia cuenta), modelar, entrenar y probar sobre unos datos de muestra estas redes neuronales.
+
+# Computer Vision
+
+Consiste en el proceso de entendimiento por parte de las computadoras de imagenes digitales gracias a diferentes metodos.
+
+Usos populares de `computer vision`:
+
+- Identificar personas en imagenes (handwritting)
+
+- Vehiculos de conduccion autonoma (tesla)
+
+![handwritting-recognition](./imgs/handwritting-recognition.png)
+
+En el contexto de las redes neuronales, es intuitivo pensar que cada pixel de una imagen podria representar una unidad de entrada diferente.
+
+Podemos considerar de varias formas un pixel, probablemente la mas simple seria como un valor booleano discreto, donde $1$ es blanco y $0$ negro.
+
+Una forma algo mas avanzada consistiria en la introduccion de tonos grises; es decir, cada valor de entrada podria considerarse como un byte con un rango del $0$ al $255$.
+
+Si lo que buscaramos fuese el procesamiento de imagenes a color, habria que optar por un sistema de combinacion para la intensidad de los colores **rojo**, **verde** y **azul**.
+
+## Image Convolution
+
+Entrenar una **ann** para procesamiento de imagenes puede conllevar millones de unidades de entrada, pues necesitamos una para cada pixel de la imagen. Aun pudiendo procesar tal cantidad de entradas en una red neuronal, distinguir patrones en imagenes seria una tarea extremadamente complicada (mas aun teniendo en cuenta el posible ruido e informacion irrelevante que puede estar presente en estas)
+
+La convolucion de imagenes consiste en una tecnica para extraer la informacion mas significativa de de las mismas; lo que nos facilitara la deteccion de patrones al momento de procesar estas por parte de un modelo.
+
+- Trazos
+
+- Formas
+
+- Predominancias de color en ciertas areas
+
+La tecnica se basa en la aplicacion de un filtro en forma de matriz con valores numericos sobre la imagen original.
+
+Cada valor de cada pixel de la imagen original se multiplica por el correspondiente valor del filtro y posteriormente todos estos valores son sumados. Este mismo proceso es repetido desplazando el filtro a lo largo de la imagen, siendo los resultados de esta operacion los nuevos valores que conformaran la imagen resumen (apta para su procesamiento por una **ann**)
+
+![image-convolution](./imgs/image-convolution.png)
+
+> Este mismo proceso donde desplazamos el filtro puede ser configurado (la cantidad de pixeles por desplazamiento)
+
+A continuacion un famoso filtro o matriz de kernel:
+
+|     |     |     |
+| --- | --- | --- |
+| -1  | -1  | -1  |
+| -1  | 8   | -1  |
+| -1  | -1  | -1  |
+
+Al ser aplicado a una zona homogenea de la imagen (todos los pixeles cubiertos por el filtro tienen la misma intensidad), obtendremos un valor de $0$.
+
+![popular-kernel-matrix](./imgs/popular-kernel-matrix.png)
+
+Gracias a este sistema donde detectamos la homogeneidad de la imagen en ciertas areas podemos empezar a crear conclusiones sobre en que zonas de la imagen pueden exisitr ciertos limites, formas, patronse, etc.
+
+![real-image-convolution-example](./imgs/real-image-convolution-example.png)
+
+> Real example of an image that were generated through this same filter and PIL (python image library)
+
+Existen matrices de kernel diseñadas en particular para imagenes a color; utiles para detectar predominancia de color en ciertas areas de una imagen (no es una tecnica limitada a imagenes bicolor).
+
+La cuestion es que incluso tras haber pasado las imagenes por estos filtros con el objetivo de resaltar la informacion mas relevante en estas, la cantidad de pixeles que una imagen puede presentar es simplemente abismal. Esto implicaria disponer de una cantidad de unidades neuronales de entrada **insana**; ademas (y viendolo desde una perspectiva humana), nuestro reconocimiento de imagenes no se basa en el analisis individual de los pixeles, en su lugar, nos fijamos en grandes agrupaciones de los mismos y como estos estan ubicados en que regiones de la imagen.
+
+# Pooling
+
+Consiste en una tecnica para reducir el tamaño de los datos de entrada mediante mecanismos de muestreo sobre los mismo.
+
+En el contexto del procesamiento de imagenes con grandes cantidades de pixeles, `pooling` es permite reducir el tamaño de imagenes en terminos de pixels, tratando mantener la informacion mas relevante de las mismas (sin embargo siempre hay perdida de informacion, es inevitable).
+
+## Max Pooling
+
+De acuerdo para generar la version simplificada de la imagen, se obtiene el valor mas grande correspondiente a cada pixel de la muestra.
+
+![max-pooling](./imgs/max-pooling.png)
+
+# Convolutional Neural Networks
+
+Consiste precisamente en redes neuronales sinteticas que combinan tecnicas de convolucion y pooling principalmente para el procesamiento de imagenes digitales.
+
+1. En primer lugar las imagenes de entrada pasan por una etapa de convolucion para generar lo que conocemos como un `feature map`. Por lo general emplearemos diferentes filtros, cada uno especializado en extraer ciertas caracteristicas relevantes de la imagen (trazos en el caso del filtro $[-1, -1, -1, -1, 8, -1, -1, -1, -1]$). Es totalmente de esperar que la configuracion que empleemos para estos filtros afectara directamente a la `loss function` de la **ann** (sera necesario por lo tanto un trabajo de minimizacion para la funcion de perdia probando diferentes configuracion para los filtros).
+
+2. Tras obtener las nuevas imagenes generadas a traves de los filtros, aplicaremos pooling sobre las mismas para reducir su tamaño en terminos de pixeles (max pooling, average pooling... o el criterio que mejor se adapte al tipo de imagenes)
+
+3. Por ultimo, todas las imagenes optimizadas por `pooling` seran aplanadas o combinadas entre si para formar la entrada en la **ann**.
+
+![convolutional-ann-framework](./imgs/convolutional-ann-framework.png)
+
+Si tras todo este proceso las imagenes siguen siendo demasiado grandes o sigue habiendo dificultad para extraer patrones (y queremos mantener el modelo de **ann**), el camino a seguir es por lo tanto seguir optimizando los datos de entrada repitiendo multiples veces este mismo proceso.
