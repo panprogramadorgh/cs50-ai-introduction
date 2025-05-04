@@ -5,6 +5,7 @@ week-0/degrees/small
 
 bin
 *dummy.py
+.obsidian
 myenv
 *.zip
 __pycache__

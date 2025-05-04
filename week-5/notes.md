@@ -319,4 +319,56 @@ Consiste precisamente en redes neuronales sinteticas que combinan tecnicas de co
 
 ![convolutional-ann-framework](./imgs/convolutional-ann-framework.png)
 
-Si tras todo este proceso las imagenes siguen siendo demasiado grandes o sigue habiendo dificultad para extraer patrones (y queremos mantener el modelo de **ann**), el camino a seguir es por lo tanto seguir optimizando los datos de entrada repitiendo multiples veces este mismo proceso.
+Si tras todo este proceso las imagenes siguen siendo demasiado grandes o sigue habiendo dificultad para extraer patrones (y queremos mantener el modelo de **ann**), podemos seguir optimizando los datos de entrada repitiendo multiples veces este mismo proceso.
+
+# Recurrent Neural Networks
+
+Hasta el momento, todas las **ann** que hemos estado estudiando tienen algo en comun; existe una cantidad planificada de inputs y outputs (perceptrones / unidades de entrada y salida discretos).
+
+Las redes neuronales que comparten esta cualidad son conocidas por el nombre `feed-forward neural networks` y son especialmente utiles en el contexto del procesamiento y generacion de datos secuenciales.
+
+- Describir con lenguaje natural una imagen (imagina cada palabra como diferentes outputs generados secuencialmente)
+
+- Clasificar un video de youtube (tecnologia, filosofia, fitness, etc) pasando como input cada uno de los frames.
+
+Desde una perspectiva tradicional de la clasificacion (volvemos al ejemplo "llueve o no llueve") no es realmente problematico; no obstante, probemos por un momento a predirle a ChatGPT que describa una imagen (proceso de clasificacion con respueta abierta). ChatGPT nos arrojara una respuesta en texto describiendo cada uno de los aspectos de la imagen, siendo cada una de sus contestaciones de dimensiones diferentes dependiendo de la imagen que sea proporcionada y el significado que esta transmita (pues la respuesta era de caracter abierto y no simples valores clasificatorios discretos).
+
+Esto es un problema obvio para las `feed-forward neural netwoks`, pues tal y como se ha mencionado con anterioridad, no son compatibles con escenarios de entrada / salida abiertos.
+
+Una solucion a este problema son las **ann** recurrentes. Se le da ese nombre a este tipo de redes neuronales porque los mismos valores de salida generados son empleados como entrada en proximas ejecuciones.
+
+Mientras que una `feed-forward neural network` se considera una red $1:1$, es decir:
+
+```
+1 valor de entrada -> 1 valor de salida
+```
+
+> Un conjunto discreto de perceptrones output es considerado como un unico escenario de salida posible
+
+Una **ann** recurrente tiene la capacidad generar multiples escenarios de salida con una unica entrada ($1:N$), pues esta es ejecutada recurrentemente sobre la salida de la ejecucion anterior y donde por cada ejecucion se guarda cierta informacion en forma de estado para proximas ejecuciones.
+
+$n$ ejecuciones recurrentes se traduce a $n$ escenarios de salida diferentes.
+
+![recurrent-anns-workflow](./imgs/recurrent-anns-workflow.png)
+
+- En primer lugar la **ann** se comporta como una `feed-forward`, asociando una entrada a una salida (como ejemplo idealizado, digamos que el valor de entrada es una imagen y que cada valor de salida para las ejecuciones recurrentes son palabras o trozos de texto en lenguaje natural).
+
+- A continuacion la misma **ann** es ejecutada, aunque recibiendo como valor de entrada el output generado para la primera ejecucion y esta genera un nuevo output.
+
+- Se repite recurrentemente el mismo proceso poniendo freno en algun punto.
+
+- Finalmente se unen todos los escenarios de output generados por cada ejecucion recurrente formando una descripcion en lenguaje natural.
+
+Este ejemplo ilustra las **ann** recurrentes desde la perspectiva de la generacion de outputs secuencialmente (un output por ejecucion recurrente de la **ann**); sin enbargo (y haciendo referencia al ejemplo del procesamiento de videos), tambien podemos verlo desde la perspectiva de multiples inputs ejecutando recurrentemente la red neuronal (cada ejecucion aporta informacion relevante a la misma), obteniendo como resultado un output.
+
+![multiple-input-recurrent-ann](./imgs/multiple-input-recurrent-ann.png)
+
+> Cabe destacar que durante el proceso de ejecucion recurrente de la **ann**, esta no es reentrenada, los pesos de los perceptrones se mantienen pero la maquina obtiene informacion en forma de estado que no es inferida de primeras.
+
+Herramientas como google translate son incluso mas sofisticadas y crean un modelo mixto de varios inputs y varios outpus.
+
+- Por una parte hay una labor de comprender el concepto en un idioma $A$ (cada input podrian ser diferentes palabras a procesar)
+
+- Y posteriormente lo contrario, la **ann** se ejecuta recurrentemente para generar las palabras en el idioma $B$.
+
+![multiple-input&output-recurrent-anns](./imgs/multiple-input&output-recurrent-anns.png)
