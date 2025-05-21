@@ -9,17 +9,21 @@ import cv2
 import tensorflow as tf
 import keras
 from sklearn.model_selection import train_test_split
-import colorama
 
+# Input Setup 
 DIR = "./gtsrb-small"
-MODEL = "./models/traffic.h5"
-IMAGE = f"{DIR}/0/00000_00000.ppm"  # testing image
-
-NUM_CLASSES = 43
 IMAGE_SIZE = 72
 BATCH_SIZE = 16
+
+# Model Setup
+MODEL = "./models/traffic.h5"
+NUM_CLASSES = len(os.listdir(DIR))
+
+# Trainin Setup
+TRAIN_SIZE = 0.9
 EPOCHS = 10
 
+# Input utilities ///////////////////////////////
 
 def infer_directory(path: str) -> tf.data.Dataset:
     """
@@ -69,7 +73,7 @@ def load_ppm_image(fpath: tf.Tensor) -> tf.Tensor:
     return image
 
 
-def load_ppm_images(ds: tf.data.Dataset, batch_size: int = 16):
+def load_ppm_images(ds: tf.data.Dataset):
     """
     Creates a `tf.data.Dataset` of ppm images labeled under different class names.
 
@@ -78,29 +82,40 @@ def load_ppm_images(ds: tf.data.Dataset, batch_size: int = 16):
     """
 
     # Transforms the dataset to loaded the images, creates 32 batches and finally sets the prefetch configuration.
-    dataset = (
-        ds.map(
-            map_func=lambda fpath, label: (
-                load_ppm_image(fpath),
-                tf.strings.to_number(label, tf.int32),
-            ),
-            num_parallel_calls=tf.data.AUTOTUNE,
-        )
-        .batch(batch_size)
-        .prefetch(tf.data.AUTOTUNE)
-    )
+    dataset = ds.map(
+        map_func=lambda fpath, label: (
+            load_ppm_image(fpath),
+            tf.strings.to_number(label, tf.int32),
+        ),
+        num_parallel_calls=tf.data.AUTOTUNE,
+    ).prefetch(tf.data.AUTOTUNE)
 
     return dataset
 
+# Numpy utilities ///////////////////////////////
 
-# Library initializations
+def batch(arr: np.ndarray, batch_size: int):
+    """
+    Retorna una tupla con la version de arr por lotes y los elementos sueltos no empaquetables en un lote al ser menor que batch_size, en especifico new_axis determina la cantida de lotes. Divide la primera dimension en dos factores compatibles.
+    """
 
-colorama.init()
+    _arr = arr.copy()
+    first_axis = _arr.shape[0]
+    batch_count = first_axis // batch_size
+
+    rem = _arr[batch_count * batch_size:] # Might be empty if FIRST_AXIX % NEW_AXIS = 0
+    _arr = _arr[0:batch_count * batch_size]
+
+    shape = [batch_count, batch_size] + list(arr.shape)[2:]
+
+    return (_arr.reshape(shape), rem)
+
 
 # MAIN
 
 
 def main():
+
     # If ./models directory doesn't exist, then it creates it
     model_dirname = os.path.dirname(MODEL)
     if not os.path.isdir(model_dirname):
@@ -117,25 +132,31 @@ def main():
     # If there is not a trained model, it starts training one under the data.
     if not os.path.isfile(MODEL):
 
-        # Loads the images
-        images_ds = load_ppm_images(infer_directory(DIR), BATCH_SIZE)
-        images_ndarr = np.array([split for split in images_ds.as_numpy_iterator()])
-        training_split, validation_split = train_test_split(
-            images_ndarr, training_split=0.9, shuffle=True
-        )
+        # Loads the images (un batched data)
+        # Last batch might be of different size
+        images_ds = load_ppm_images(infer_directory(DIR))
+
+        # Creates a numpy array from the dataset
+        images_arr = np.array(tuple(split for split in images_ds.as_numpy_iterator()))
+
+        # Rules out the remaining training data (data unable to be packaged in a bach)
+        images_arr, _ = batch(images_arr, BATCH_SIZE)
+
+        # Data splits
+        training_split, testing_split = train_test_split(images_arr, train_size=TRAIN_SIZE)
 
         # Compiles the model with the optimizer and loss function (prepares it to training)
         model.compile(optimizer="adam", loss="sparse_categorical_crossentropy")
 
         # Trains the model with the provided data for training and validation
-        model.fit(training_split, validation_split=validation_split, epochs=EPOCHS)
+        model.fit(training_split, validation_split=testing_split, epochs=EPOCHS)
 
         # Saves the model to h5 format
         model.save_weights(MODEL)
     else:
         model.load_weights(MODEL)
 
-    dummy_ds = tf.data.Dataset([IMAGE])
+    dummy_ds = tf.data.Dataset([f"{DIR}/0/00000_00000.ppm"])
     input_image = next(dummy_ds.map(load_ppm_image))
     result = model.predict(input_image)
     print(result)
